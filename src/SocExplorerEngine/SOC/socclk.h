@@ -24,9 +24,8 @@
 #define SOCCLK_H
 #include <QString>
 #include <QList>
-#include <socexplorer.h>
 
-class SOCEXPLORER_EXPORT SOCclk
+class SOCclk
 {
 public:
     SOCclk(const QString& name, qint64 value, qint64 divisor, qint64 multiplier);

@@ -116,6 +116,10 @@ socexplorerengine = declare_dependency(link_with:lib_socexplorerengine,
 	dependencies: [qt5widgets, qt5xml, peripheralwidget, socexplorercommon, libdll]
 	)
 
+
+install_headers('pluginsInterface/socexplorerplugininterface.h', subdir : 'SocExplorer/pluginInterface')
+
+
 pkg.generate(libraries : lib_socexplorerengine,
              subdirs : inc,
              version : '1.0',

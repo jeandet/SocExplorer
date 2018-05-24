@@ -109,6 +109,8 @@ public:
      static void addSOC(socexplorerplugin* rootPlugin);
      static void removeSOC(socexplorerplugin* rootPlugin);
      static void message(socexplorerplugin* sender,const QString& message,int debugLevel=0);
+     static void message(QObject* sender,const QString& message,int debugLevel=0);
+     static void message(const QString& sender,const QString& message,int debugLevel=0);
      static void setLogLevel(int level);
      static bool isSocLitleEndian(socexplorerplugin* plugin);
 signals:

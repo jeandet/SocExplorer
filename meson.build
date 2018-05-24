@@ -1,8 +1,11 @@
 project('SocExplorer','c','cpp')
 
+changeset=run_command('git', ['rev-parse', 'HEAD']).stdout().split()[0]
+branch=run_command('git', ['rev-parse', '--abbrev-ref', 'HEAD']).stdout().split()[0]
+
 add_global_arguments('-DSOCEXPLORER_VERSION="0.8"', language : 'cpp')
-add_global_arguments('-DSOCEXPLORER_CHAGESET="blah"', language : 'cpp')
-add_global_arguments('-DSOCEXPLORER_BRANCH="meson"', language : 'cpp')
+add_global_arguments('-DSOCEXPLORER_CHAGESET="@0@"'.format(changeset), language : 'cpp')
+add_global_arguments('-DSOCEXPLORER_BRANCH="@0@"'.format(branch), language : 'cpp')
 
 if  target_machine.system() == 'windows'
     add_global_arguments('-DWIN32', language : 'cpp')
@@ -10,7 +13,7 @@ if  target_machine.system() == 'windows'
     add_global_arguments('-DSOCEXPLORER_TRANSLATION_PATH="./translations"', language : 'cpp')
 elif target_machine.system() == 'linux'
     add_global_arguments('-DUNIX', language : 'cpp')
-    add_global_arguments('-DSOCEXPLORER_TRANSLATION_PATH="/etc/SocExplorer/translations\"', language : 'cpp')
+    add_global_arguments('-DSOCEXPLORER_TRANSLATION_PATH="/etc/SocExplorer/translations"', language : 'cpp')
     add_global_arguments('-DSOCEXPLORER_CONFIG_PATH="/etc/SocExplorer"', language : 'cpp')
     add_global_arguments('-DSOCEXPLORER_SHARE_PATH="/usr/share/SocExplorer"', language : 'cpp')
 endif

@@ -289,13 +289,29 @@ void SocExplorerEngine::removeSOC(socexplorerplugin *rootPlugin)
     delete soc;
 }
 
+
 void SocExplorerEngine::message(socexplorerplugin *sender, const QString &message, int debugLevel)
 {
+    if(!_self)
+        init();
+     SocExplorerEngine::message(sender->instanceName(),message,debugLevel);
+}
+
+void SocExplorerEngine::message(QObject *sender, const QString &message, int debugLevel)
+{
+    if(!_self)
+        init();
+     SocExplorerEngine::message(sender->objectName(),message,debugLevel);
+}
+
+void SocExplorerEngine::message(const QString &sender, const QString &message, int debugLevel)
+{
     // TODO add multi output message manager IE also log in files
+    static QTextStream SocExplorerEngineStdout(stdout);
     if(!_self)
         init();
     if(loglvl>=debugLevel)
-        qDebug()<< QTime::currentTime().toString()+" " + sender->instanceName()+":"+message;
+        SocExplorerEngineStdout << QTime::currentTime().toString()+" " + sender+":"+message << endl;
 }
 
 void SocExplorerEngine::setLogLevel(int level)

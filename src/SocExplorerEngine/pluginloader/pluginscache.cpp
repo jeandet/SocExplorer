@@ -1,5 +1,6 @@
 #include "pluginscache.h"
 #include <QDebug>
+#include <socexplorerengine.h>
 
 PluginsCacheItem::PluginsCacheItem(const QString &fileName, const QString &path, const QString &pluginName, int VID, int PID)
 {
@@ -56,12 +57,12 @@ void PluginsCache::append(const QString &fileName, const QString &path, const QS
     {
         if(this->items->at(i)->compare(item))
         {
-            qDebug()<< fileName << "already in the cache";
+            SocExplorerEngine::message("PluginsCache",fileName + " already in the cache",3);
             delete item;
             return;
         }
     }
-    qDebug()<< fileName << "added to cache";
+    SocExplorerEngine::message("PluginsCache",fileName + " added to cache",3);
     this->items->append(item);
 }
 

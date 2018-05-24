@@ -25,9 +25,8 @@
 #include "socexplorerplugininterface_global.h"
 #include <QString>
 #include <QtGlobal>
+#include <QtPlugin>
 
-#define ComDriverT  1
-#define PerifDriverT 2
 typedef int pluginT;
 
 typedef void* (*socexplorerpluginCreateObjectT)();

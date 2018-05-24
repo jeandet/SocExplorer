@@ -14,6 +14,8 @@ public:
   static unsigned int measureMemSize(const QString& plugin, unsigned int address,unsigned int maxSize=0xFFFFFFFF);
 public slots:
 
+private:
+  static bool m_check_space(socexplorerplugin* plugin,unsigned int address, unsigned int pow);
 };
 
 #endif // MEMTESTER_H

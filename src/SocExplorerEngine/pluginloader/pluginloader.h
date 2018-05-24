@@ -59,8 +59,6 @@ public:
     static int checklibrary(const QString fileName);
     static bool isvalid(QString Name);
     static socexplorerplugin* newsocexplorerplugin(const QString Name);
-    static QString getlibTypeStr(QString Name);
-    static pluginT getlibType(QString Name);
     static QString getlibVersion(const QString Name);
     static QString getlibPIDstr(const QString Name);
     static QString getlibVIDstr(const QString Name);
@@ -81,7 +79,6 @@ private:
     int p_checklibraryCustom(const QString fileName);
     socexplorerplugin* p_newsocexplorerpluginQlib(const QString Name);
     socexplorerplugin* p_newsocexplorerpluginCustom(const QString Name);
-    static QStringList readFoldersList(const QStringList confFiles);
     static QString* _cacheLookup(const QString Name);
     static QString _getlibName(const QString fileName);
     static int _getlibPID(const QString fileName);

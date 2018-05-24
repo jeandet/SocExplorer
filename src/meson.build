@@ -50,10 +50,7 @@ processed = qt5_mod.preprocess(
   qresources  : ['../ressources/SocExplorer.qrc']
 )
 
-# DIRTY!
-incs = include_directories('/usr/include/PythonQt/')
-
 socexplorer = executable('socexplorer', sources, processed,
     dependencies:[socexplorerengine],
-    include_directories:incs
+    install: true
     )

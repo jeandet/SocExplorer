@@ -57,19 +57,29 @@ unsigned int MemTester::measureMemSize(socexplorerplugin *plugin, unsigned int a
       testAddress = (unsigned int)(address+(1<<size));
       curVal = (unsigned int)(1<<size);
       plugin->Write(&curVal,1,testAddress);
-      plugin->Read(&curVal,1,testAddress);
-      if((unsigned int)curVal!=(unsigned int)(1<<size))
-        return (1<<(size));
-      plugin->Read(&curVal,1,address);
-      if((curVal==(unsigned int)(1<<size)) && (size!=0))
-        return (1<<(size));
+      if(!MemTester::m_check_space(plugin,address,size))
+          return (1<<(size));
     }
   return (1<<(size+1));
 }
 
 unsigned int MemTester::measureMemSize(const QString &plugin, unsigned int address, unsigned int maxSize)
 {
-  return measureMemSize(socexplorerproxy::findPlugin(plugin),address,maxSize);
+    return measureMemSize(socexplorerproxy::findPlugin(plugin),address,maxSize);
+}
+
+bool MemTester::m_check_space(socexplorerplugin *plugin,unsigned int address, unsigned int pow)
+{
+    unsigned int currentAddress=4;
+    unsigned int curVal=0xffffff;
+    while (currentAddress<=(1<<pow))
+    {
+        plugin->Read(&curVal,1,address+currentAddress);
+        if(curVal!=currentAddress)
+            return false;
+        currentAddress = currentAddress <<1;
+    }
+    return  true;
 }
 
 

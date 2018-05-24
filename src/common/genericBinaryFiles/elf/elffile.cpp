@@ -32,8 +32,9 @@ ElfFile::ElfFile()
     this->opened = false;
     this->type_elf = false;
     this->elfFile = (int)NULL;
-    this->e = NULL;
-    this->data = NULL;
+    this->e = Q_NULLPTR;
+    this->data = Q_NULLPTR;
+    this->scn = Q_NULLPTR;
     this->SymbolCount = 0;
 }
 
@@ -43,10 +44,11 @@ ElfFile::ElfFile(const QString &File)
     this->opened = false;
     this->type_elf = false;
     this->elfFile = (int)NULL;
-    this->e = NULL;
-    this->p_fileName = File;
-    this->data = NULL;
+    this->e = Q_NULLPTR;
+    this->data = Q_NULLPTR;
+    this->scn = Q_NULLPTR;
     this->SymbolCount = 0;
+    this->p_fileName = File;
     openFile(File);
 }
 
