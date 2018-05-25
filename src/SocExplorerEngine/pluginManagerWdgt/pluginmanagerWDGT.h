@@ -39,7 +39,7 @@
 #include "pluginlist.h"
 #include <socexplorerplugin.h>
 #include <QList>
-#include "plugintree.h"
+#include "PluginTreeWidget.h"
 
 #if defined(SOCEXPLORER_SDK_BUILD)
 #  define SOCEXPLORER_SDK_EXPORT Q_DECL_EXPORT
@@ -78,7 +78,7 @@ private:
     QSplitter* mainlayoutSpliter;
     PluginList* pluginTable;
     pluginInfosWdgt* pluginInfos;
-    plugintree* treeview;
+    PluginTreeWidget* treeview;
     QPushButton* addPluginBt;
     QPushButton* removePluginBt;
     QPushButton* loadPluginBt;

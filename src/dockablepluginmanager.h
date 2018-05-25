@@ -24,6 +24,7 @@
 
 #include <QDockWidget>
 #include "pluginmanagerWDGT.h"
+#include <pluginmangerview.h>
 
 class dockablePluginManager : public QDockWidget
 {
@@ -43,7 +44,8 @@ signals:
 public slots:
 
 private:
-    pluginmanagerWDGT* managerGui;
+//    pluginmanagerWDGT* managerGui;
+    PluginMangerView* view;
     
 };
 

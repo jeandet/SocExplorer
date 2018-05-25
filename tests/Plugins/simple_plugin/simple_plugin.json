@@ -1,0 +1,10 @@
+{
+    "Name" : "SimplePlugin",
+    "Author" : "Alexis Jeandet",
+    "Version" : "1.0",
+    "Description" : "This a simple  test plugin",
+    "root" : "1",
+    "child" : "1",
+    "VID" : "0",
+    "PID" : "0"
+}

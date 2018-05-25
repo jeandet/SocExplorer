@@ -25,6 +25,7 @@
 #include <QWidget>
 #include <QTreeWidget>
 #include <socexplorerplugin.h>
+#include <isocexplorerplugin.h>
 #include <QList>
 #include <QtGui/QDragEnterEvent>
 #include <QtGui/QDragLeaveEvent>
@@ -36,11 +37,11 @@
 #include <QPoint>
 #include <QLabel>
 
-class plugintree : public QTreeWidget
+class PluginTreeWidget : public QTreeWidget
 {
     Q_OBJECT
 public:
-    explicit plugintree(QWidget *parent = 0);
+    explicit PluginTreeWidget(QWidget *parent = Q_NULLPTR);
     
 protected:
     void dragEnterEvent(QDragEnterEvent *event);
@@ -59,12 +60,12 @@ signals:
         void changeSysDriverInstName(const QString instanceName);
         void changeSysDriverInstName(const QString newinstanceName,const QString previnstanceName);
 public slots:
-        void treeChanged(const QList<socexplorerplugin*>& drivers);
+        void treeChanged(const QVector<ISocexplorerPlugin *> &drivers);
         void pluginselectedslt( QTreeWidgetItem * item, int column);
         void itemSelectionChangedslt();
 
 private:
-        void addplugin(socexplorerplugin* driver,QTreeWidgetItem* item);
+        void addplugin(ISocexplorerPlugin *driver, QTreeWidgetItem* item);
         QTreeWidgetItem* editeditem;
         QString* editeditemprev;
         bool editingItem;

@@ -21,7 +21,8 @@ SET (engine_SRCS
     ./pluginManagerWdgt/plugininfoswdgt.h
     ./pluginManagerWdgt/pluginlist.h
     ./pluginManagerWdgt/pluginmanagerWDGT.h
-    ./pluginManagerWdgt/plugintree.h
+    ./pluginManagerWdgt/PluginTreeWidget.h
+    ./pluginManagerWdgt/pluginmangerview.h
     ./proxy/socexplorerproxy.h
     ./XmlEngine/XMLmodel.h
     ./XmlEngine/xmldriver.h
@@ -52,10 +53,11 @@ SET (engine_SRCS
     ./engine/socexplorercoresettingsgui.cpp
     ./pythonQtOut/generated_cpp/PySocExplorerEngine/PySocExplorerEngine0.cpp
     ./pythonQtOut/generated_cpp/PySocExplorerEngine/PySocExplorerEngine_init.cpp
-    ./pluginManagerWdgt/plugintree.cpp
+    ./pluginManagerWdgt/PluginTreeWidget.cpp
     ./pluginManagerWdgt/plugininfoswdgt.cpp
     ./pluginManagerWdgt/pluginlist.cpp
     ./pluginManagerWdgt/pluginmanagerWDGT.cpp
+    ./pluginManagerWdgt/pluginmangerview.cpp
     ./proxy/socexplorerproxy.cpp
     ./XmlEngine/XMLmodel.cpp
     ./XmlEngine/XMLdata.cpp
@@ -65,7 +67,6 @@ SET (engine_SRCS
     ./pluginloader/pluginscache.cpp
     ./memtester/memtester.cpp
     ./plugins/socexplorerplugin.cpp
-    ./pluginloaderV2/pluginmanager.cpp
 
     ./PeripheralWidget/ressources/peripheralwidget.qrc
 
@@ -77,6 +78,7 @@ QT5_WRAP_UI(
     ./PeripheralWidget/src/collapsableperipheralwidget.ui
     ./engine/socexplorersettingsdialog.ui
     ./engine/socexplorercoresettingsgui.ui
+    ./pluginManagerWdgt/pluginmangerview.ui
 )
 
 add_library(socexplorerengine ${engine_SRCS} ${UiGenerated_SRCS})
@@ -136,6 +138,12 @@ target_include_directories(socexplorerengine PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/proxy>
     $<INSTALL_INTERFACE:include/SocExplorer/SocExplorerEngine/proxy>
 )
+
+target_include_directories(socexplorerengine PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/pluginloaderV2>
+    $<INSTALL_INTERFACE:include/SocExplorer/SocExplorerEngine/pluginloaderV2>
+)
+
 
 target_link_libraries(socexplorerengine PUBLIC
   socexplorercommon

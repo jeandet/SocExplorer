@@ -26,14 +26,32 @@
 /*--                  Author : Alexis Jeandet
 --                     Mail : alexis.jeandet@lpp.polytechnique.fr
 ----------------------------------------------------------------------------*/
-#ifndef PLUGINLOADER_H
-#define PLUGINLOADER_H
+#ifndef PLUGINMANAGER_H
+#define PLUGINMANAGER_H
 #include <isocexplorerplugin.h>
 #include <QHash>
 #include <QStringLiteral>
+#include <iostream>
+#include <QDir>
+#include <QLibrary>
+#include <QPluginLoader>
+
+namespace pluginKeys
+{
+    const auto Name=QStringLiteral("Name");
+    const auto Author=QStringLiteral("Author");
+    const auto Version=QStringLiteral("Version");
+    const auto Description=QStringLiteral("Description");
+    const auto CanBeRoot=QStringLiteral("root");
+    const auto CanBeChild=QStringLiteral("child");
+    const auto VID=QStringLiteral("VID");
+    const auto PID=QStringLiteral("PID");
+
+    const auto all={Name, Author, Version, Description, CanBeRoot, CanBeChild, VID, PID};
+};
 
 template<typename T>
-auto loadMetadata(const QString& name, const QString &pluginName,const QHash<QString, QHash<QString,QString>>& plugins_metada_cache);
+static auto loadMetadata(const QString& name, const QString &pluginName,const QHash<QString, QHash<QString,QString>>& plugins_metada_cache);
 
 template<>
 auto loadMetadata<QString>(const QString& name, const QString &pluginName,const QHash<QString, QHash<QString,QString>>& plugins_metada_cache)
@@ -65,24 +83,44 @@ auto loadMetadata<bool>(const QString& name, const QString &pluginName,const QHa
     return false;
 }
 
-namespace pluginKeys
-{
-    const auto Name=QStringLiteral("Name");
-    const auto Author=QStringLiteral("Author");
-    const auto Version=QStringLiteral("Version");
-    const auto Description=QStringLiteral("Description");
-    const auto CanBeRoot=QStringLiteral("root");
-    const auto CanBeChild=QStringLiteral("child");
-    const auto VID=QStringLiteral("VID");
-    const auto PID=QStringLiteral("PID");
-
-    const auto all={Name, Author, Version, Description, CanBeRoot, CanBeChild, VID, PID};
-};
-
+template <class logger>
 class PluginManager
 {
-    void loadPluginMetaData(const QString &pluginPath);
-    bool isPlugin(const QString &pluginPath)const;
+    void loadPluginMetaData(const QString &pluginPath)
+    {
+        if(!this->plugins_metada_cache.contains(pluginPath))
+        {
+            if (QLibrary::isLibrary(pluginPath))
+            {
+                QPluginLoader pluginLoader{pluginPath};
+                if(pluginLoader.isLoaded())
+                {
+                    auto metadata = pluginLoader.metaData().value("MetaData").toObject();
+                    for (auto key:pluginKeys::all)
+                    {
+                        if(metadata.contains(key))
+                            this->plugins_metada_cache[pluginPath][key] = metadata.value(key).toString();
+                    }
+                }
+
+            }
+        }
+    }
+    bool isPlugin(const QString &pluginPath)const
+    {
+        if(!this->plugins_metada_cache.contains(pluginPath))
+        {
+            if (QLibrary::isLibrary(pluginPath))
+            {
+                QPluginLoader pluginLoader{pluginPath};
+                if(pluginLoader.load())
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
     QString resolvePluginName(const QString &pluginName)const
     {
@@ -94,8 +132,24 @@ class PluginManager
         return QString();
     }
 public:
-    PluginManager(const QStringList& folderList);
-    ISocexplorerPlugin* makeInstance(const QString &pluginName);
+    PluginManager(const QStringList& folderList)
+        :folderList(folderList)
+    {
+        scanFolders();
+    }
+
+    ISocexplorerPlugin* makeInstance(const QString &pluginName)
+    {
+        auto plugin = resolvePluginName(pluginName);
+        if (QLibrary::isLibrary(plugin))
+        {
+            QPluginLoader pluginLoader{plugin};
+            if (auto pluginInstance = qobject_cast<ISocexplorerPlugin *>(pluginLoader.instance())) {
+                return pluginInstance;
+            }
+        }
+        return Q_NULLPTR;
+    }
 
 #define METADATA_GETTER(type, name)\
     type plugin##name(const QString &pluginName)const{return loadMetadata<type>(pluginKeys::name, resolvePluginName(pluginName), plugins_metada_cache);}
@@ -111,12 +165,40 @@ public:
     METADATA_GETTER(int, VID)
     METADATA_GETTER(int, PID)
 
-    void scanFolders();
+    void scanFolders()
+    {
+        QDir dir;
+        QStringList filters{"*.so", "*.dll"};
+        pluginTable.clear();
+        for(auto&& folder:folderList)
+        {
+            dir.setPath(folder);
+            dir.setFilter(QDir::Files);
+            dir.setNameFilters(filters);
+            QFileInfoList list = dir.entryInfoList();
+            for (auto&& fileInfo:list)
+            {
+                auto path = fileInfo.filePath();
+                logger::message("pluginloader::scanFolders","Checking "+ path,3);
+                if(isPlugin(path))
+                {
+                    loadPluginMetaData(path);
+                    auto name = plugins_metada_cache[path][pluginKeys::Name];
+                    pluginTable[name].append(path);
+                }
+            }
+        }
+    }
 private:
     QHash<QString, QHash<QString,QString>> plugins_metada_cache;
+
+    /** pluginTable maps plugin names and plugins DLL path
+    this helps to get the list of DLLs which provides a given plugin
+    idealy we should have only one DLL for each plugin name.
+    **/
     QHash<QString, QStringList> pluginTable;
 
     QStringList folderList;
 };
 
-#endif // PLUGINLOADER_H
+#endif // PLUGINMANAGER_H

@@ -1,31 +1,31 @@
-#include "plugintree.h"
+#include "PluginTreeWidget.h"
 #include "pluginloader.h"
 #include <QApplication>
 #include "qsvgicon.h"
 #include <QHeaderView>
 #include <QString>
 
-plugintree::plugintree(QWidget *parent) :
+PluginTreeWidget::PluginTreeWidget(QWidget *parent) :
     QTreeWidget(parent)
 {
     this->editingItem=false;
     this->editeditemprev=new QString;
     this->setAcceptDrops(true);
     this->setDragDropMode(QAbstractItemView::DropOnly);
-    connect(this,SIGNAL(itemChanged(QTreeWidgetItem*,int)),this,SLOT(pluginselectedslt(QTreeWidgetItem*,int)));
-    connect(this,SIGNAL(itemSelectionChanged()),this,SLOT(itemSelectionChangedslt()));
+    connect(this, &PluginTreeWidget::itemChanged, this, &PluginTreeWidget::pluginselectedslt);
+    connect(this, &PluginTreeWidget::itemSelectionChanged, this, &PluginTreeWidget::itemSelectionChangedslt);
     this->setHeaderLabels(QStringList()<<"Loaded plugins");
     emit this->geteplugintree();
 }
 
 
-void plugintree::pluginselectedslt(QTreeWidgetItem *item, int column)
+void PluginTreeWidget::pluginselectedslt(QTreeWidgetItem *item, int column)
 {
     Q_UNUSED(column)
     emit this->pluginselected(item->text(0));
 }
 
-void plugintree::itemSelectionChangedslt()
+void PluginTreeWidget::itemSelectionChangedslt()
 {
     if(this->selectedItems().count()==1)
     {
@@ -33,45 +33,44 @@ void plugintree::itemSelectionChangedslt()
     }
 }
 
-void plugintree::treeChanged(const QList<socexplorerplugin*>& drivers)
+void PluginTreeWidget::treeChanged(const QVector<ISocexplorerPlugin *> &drivers)
 {
     this->clear();
-    for(int i=0;i<drivers.count();i++)
+    for(auto driver:drivers)
     {
         QTreeWidgetItem* currentItem=new QTreeWidgetItem;
         currentItem->setIcon(0,QSvgIcon(":/images/server.svg"));
-        currentItem->setText(0,drivers.at(i)->instanceName());
+        currentItem->setText(0,driver->instanceName());
         this->addTopLevelItem(currentItem);
-        if(drivers.at(i)->childs.count()!=0)
+        if(driver->childs.count()!=0)
         {
-                this->addplugin(drivers.at(i),currentItem);
+                this->addplugin(driver,currentItem);
         }
         currentItem->setExpanded(true);
     }
 }
 
-void plugintree::addplugin(socexplorerplugin *driver, QTreeWidgetItem *item)
+void PluginTreeWidget::addplugin(ISocexplorerPlugin *parentDriver, QTreeWidgetItem *item)
 {
 
-    for(int i=0;i<driver->childs.count();i++)
+    for(auto driver:parentDriver->childs)
     {
         QTreeWidgetItem* currentItem=new QTreeWidgetItem;
         currentItem->setIcon(0,QSvgIcon(":/images/server.svg"));
-        currentItem->setText(0,driver->childs.at(i)->instanceName());
+        currentItem->setText(0,driver->instanceName());
         item->addChild(currentItem);
-        if(driver->childs.at(i)->childs.count()!=0)
+        if(driver->childs.count()!=0)
         {
-                this->addplugin(driver->childs.at(i),currentItem);
+                this->addplugin(driver,currentItem);
         }
         currentItem->setExpanded(true);
     }
-
 }
 
 
 
 
-void plugintree::dragEnterEvent(QDragEnterEvent *event)
+void PluginTreeWidget::dragEnterEvent(QDragEnterEvent *event)
 {  
     if (event->mimeData()->hasFormat("socexplorer/pluginName"))
     {
@@ -90,7 +89,7 @@ void plugintree::dragEnterEvent(QDragEnterEvent *event)
     }
 }
 
-void plugintree::dragMoveEvent(QDragMoveEvent *event)
+void PluginTreeWidget::dragMoveEvent(QDragMoveEvent *event)
 {
     if (event->mimeData()->hasFormat("socexplorer/pluginName"))
     {
@@ -124,7 +123,7 @@ void plugintree::dragMoveEvent(QDragMoveEvent *event)
 }
 
 
-void plugintree::mouseDoubleClickEvent(QMouseEvent *event)
+void PluginTreeWidget::mouseDoubleClickEvent(QMouseEvent *event)
 {
     this->clearSelection();
     this->editeditem=this->itemAt(event->pos());
@@ -137,7 +136,7 @@ void plugintree::mouseDoubleClickEvent(QMouseEvent *event)
     QTreeWidget::mouseDoubleClickEvent(event);
 }
 
-void plugintree::mousePressEvent(QMouseEvent *event)
+void PluginTreeWidget::mousePressEvent(QMouseEvent *event)
 {
     QTreeWidget::mousePressEvent(event);
     if(this->editingItem==true && this->editeditem!=this->itemAt(event->pos()))
@@ -152,7 +151,7 @@ void plugintree::mousePressEvent(QMouseEvent *event)
 }
 
 
-void plugintree::keyPressEvent(QKeyEvent *event)
+void PluginTreeWidget::keyPressEvent(QKeyEvent *event)
 {
 
     {
@@ -183,7 +182,7 @@ void plugintree::keyPressEvent(QKeyEvent *event)
 }
 
 
-void plugintree::dropEvent(QDropEvent *event)
+void PluginTreeWidget::dropEvent(QDropEvent *event)
 {
     if (event->mimeData()->hasFormat("socexplorer/pluginName"))
     {

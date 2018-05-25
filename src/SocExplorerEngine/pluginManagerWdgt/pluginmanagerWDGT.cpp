@@ -42,7 +42,7 @@ pluginmanagerWDGT::pluginmanagerWDGT(QWidget *parent) :
     this->mainlayoutSpliter = new QSplitter;
     this->pluginListLayout = new QVBoxLayout();
     this->mainlayoutSpliter->setOrientation(Qt::Vertical);
-    this->treeview = new plugintree();
+    this->treeview = new PluginTreeWidget();
     this->pluginTable = new PluginList;
     this->ButtonsLayout = new QHBoxLayout();
     this->ButtonsLayout->addStretch();

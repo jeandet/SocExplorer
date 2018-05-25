@@ -54,5 +54,5 @@ add_definitions(-DSOCEXPLORER_CONFIG_PATH="/etc/SocExplorer")
 add_definitions(-DSOCEXPLORER_SHARE_PATH="/usr/share/SocExplorer")
 
 add_subdirectory(src)
-
+add_subdirectory(tests)
 

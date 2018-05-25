@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>PluginMangerView</class>
+ <widget class="QWidget" name="PluginMangerView">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Plugins</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="PluginTreeWidget" name="LoadedPluginsTree">
+     <property name="dragDropMode">
+      <enum>QAbstractItemView::DropOnly</enum>
+     </property>
+     <column>
+      <property name="text">
+       <string notr="true">1</string>
+      </property>
+     </column>
+    </widget>
+   </item>
+   <item>
+    <widget class="PluginList" name="listWidget"/>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>PluginTreeWidget</class>
+   <extends>QTreeWidget</extends>
+   <header>PluginTreeWidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>PluginList</class>
+   <extends>QListWidget</extends>
+   <header>pluginlist.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
