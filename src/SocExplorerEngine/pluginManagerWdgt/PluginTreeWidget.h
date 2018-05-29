@@ -60,12 +60,12 @@ signals:
         void changeSysDriverInstName(const QString instanceName);
         void changeSysDriverInstName(const QString newinstanceName,const QString previnstanceName);
 public slots:
-        void treeChanged(const QVector<ISocexplorerPlugin *> &drivers);
+        void treeChanged(const std::vector<std::shared_ptr<ISocexplorerPlugin>> &drivers);
         void pluginselectedslt( QTreeWidgetItem * item, int column);
         void itemSelectionChangedslt();
 
 private:
-        void addplugin(ISocexplorerPlugin *driver, QTreeWidgetItem* item);
+        void addplugin(const std::shared_ptr<ISocexplorerPlugin> &driver, QTreeWidgetItem* item);
         QTreeWidgetItem* editeditem;
         QString* editeditemprev;
         bool editingItem;

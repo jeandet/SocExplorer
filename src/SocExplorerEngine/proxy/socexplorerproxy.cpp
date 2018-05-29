@@ -27,20 +27,17 @@
 
 socexplorerproxy* socexplorerproxy::_self=NULL;
 QMainWindow* socexplorerproxy::mainWindow=NULL;
-QList<socexplorerplugin*>* socexplorerproxy::drivers=NULL;
-QList<socexplorerplugin*>* socexplorerproxy::linearDriverList=NULL;
+QVector<socexplorerplugin*>* socexplorerproxy::drivers=NULL;
+QVector<socexplorerplugin*>* socexplorerproxy::linearDriverList=NULL;
 socexplorerplugin* socexplorerproxy::root=NULL;
 socexplorerplugin* socexplorerproxy::parent=NULL;
-PluginsCache* socexplorerproxy::cache=NULL;
-QStringList* socexplorerproxy::linearDriverPathList=NULL;
+QStringList socexplorerproxy::linearDriverPathList=QStringList{};
 
 socexplorerproxy::socexplorerproxy(QObject *parent) :
     QObject(parent)
 {
-    cache = new PluginsCache;
-    drivers = new QList<socexplorerplugin*>;
-    linearDriverList=new QList<socexplorerplugin*>;
-    linearDriverPathList=new QStringList;
+    drivers = new QVector<socexplorerplugin*>;
+    linearDriverList=new QVector<socexplorerplugin*>;
     root = NULL;
 }
 
@@ -49,10 +46,8 @@ socexplorerproxy::socexplorerproxy(QMainWindow *Mainwindow, QObject *parent):
     QObject(parent)
 {
     mainWindow = Mainwindow;
-    cache = new PluginsCache;
-    drivers = new QList<socexplorerplugin*>;
-    linearDriverList=new QList<socexplorerplugin*>;
-    linearDriverPathList=new QStringList;
+    drivers = new QVector<socexplorerplugin*>;
+    linearDriverList=new QVector<socexplorerplugin*>;
     root = NULL;
 }
 
@@ -103,13 +98,13 @@ void socexplorerproxy::loadSysDriver(socexplorerplugin *driver, const QString in
     drivers->append(driver);
     linearDriverList->append(driver);
     if(path.isEmpty())
-        linearDriverPathList->append(driver->baseName());
+        linearDriverPathList.append(driver->baseName());
     else
-        linearDriverPathList->append(path);
+        linearDriverPathList.append(path);
     connectChildToProxy(driver);
     emit _self->addPluginGUI(driver);
     emit _self->clearMenu();
-    emit _self->treeChanged(QList<socexplorerplugin*>(*drivers));
+    emit _self->treeChanged(QVector<socexplorerplugin*>(*drivers));
     SocExplorerEngine::addSOC(driver);
     driver->postInstantiationTrigger();
 }
@@ -166,9 +161,9 @@ void socexplorerproxy::loadSysDriverToParent(socexplorerplugin *driver,socexplor
     if(!_self)init();
     linearDriverList->append(driver);
     if(path.isEmpty())
-        linearDriverPathList->append(driver->baseName());
+        linearDriverPathList.append(driver->baseName());
     else
-        linearDriverPathList->append(path);
+        linearDriverPathList.append(path);
     driver->parent = parent;
     driver->setInstanceName(instanceName);
     parent->childs.append(driver);
@@ -176,7 +171,7 @@ void socexplorerproxy::loadSysDriverToParent(socexplorerplugin *driver,socexplor
     connectChildToParent(parent,driver);
     emit _self->clearMenu();
     emit _self->addPluginGUI(driver);
-    emit _self->treeChanged(QList<socexplorerplugin*>(*drivers));
+    emit _self->treeChanged(QVector<socexplorerplugin*>(*drivers));
     driver->postInstantiationTrigger();
 }
 
@@ -194,12 +189,12 @@ void socexplorerproxy::changeSysDriverInstName(const QString newinstanceName, co
     {
         if(NULL!=_self->getSysDriver(newinstanceName))
         {
-            emit _self->treeChanged(QList<socexplorerplugin*>(*drivers));
+            emit _self->treeChanged(QVector<socexplorerplugin*>(*drivers));
             return;
         }
         temp->setInstanceName(newinstanceName);
     }
-    emit _self->treeChanged(QList<socexplorerplugin*>(*drivers));
+    emit _self->treeChanged(QVector<socexplorerplugin*>(*drivers));
 }
 
 
@@ -285,7 +280,7 @@ QStringList socexplorerproxy::getPluginsList()
         QString parent="";
         plugin=linearDriverList->at(i);
         if(plugin->parent)parent=plugin->parent->instanceName();
-        result.append(linearDriverList->at(i)->instanceName()+":"+parent+":"+linearDriverPathList->at(i));
+        result.append(linearDriverList->at(i)->instanceName()+":"+parent+":"+linearDriverPathList.at(i));
     }
     return result;
 }
@@ -374,7 +369,7 @@ void socexplorerproxy::closeSysDriver(socexplorerplugin *driver, bool recursive)
         emit _self->removePluginGUI(driver);
         if(driver->parent==NULL)SocExplorerEngine::removeSOC(driver);
         while(driver->childs.count()!=0)closeSysDriver(driver->childs.first());
-        linearDriverPathList->removeAt(linearDriverList->indexOf(driver));
+        linearDriverPathList.removeAt(linearDriverList->indexOf(driver));
         linearDriverList->removeOne(driver);
         if(driver->parent!= NULL)
         {
@@ -393,7 +388,7 @@ void socexplorerproxy::closeSysDriver(socexplorerplugin *driver, bool recursive)
         {
             emit _self->clearMenu();
             emit _self->registermenu(mainWindow);            
-            emit _self->treeChanged(QList<socexplorerplugin*>(*drivers));
+            emit _self->treeChanged(QVector<socexplorerplugin*>(*drivers));
         }
     }
 
@@ -402,7 +397,7 @@ void socexplorerproxy::closeSysDriver(socexplorerplugin *driver, bool recursive)
 void socexplorerproxy::geteplugintree()
 {
     if(!_self)init();
-    emit _self->treeChanged(QList<socexplorerplugin*>(*drivers));
+    emit _self->treeChanged(QVector<socexplorerplugin*>(*drivers));
 }
 
 void socexplorerproxy::closeSysDriverFromDriver(socexplorerplugin *driver)

@@ -30,15 +30,11 @@
 #define ISOCEXPLORERPLUGIN_H
 #include <QtPlugin>
 #include <QWidget>
-#include <QAction>
 #include <QDockWidget>
-#include <QMainWindow>
-#include <QList>
-#include <QMenu>
-#include <socexplorer.h>
 #include <QObject>
 #include <QVariant>
 #include <QVariantList>
+#include <socexplorer.h>
 #include <malloc.h>
 #include <QFile>
 #include <stdint.h>
@@ -46,6 +42,8 @@
 #include <abstractbinfile.h>
 #include <srec/srecfile.h>
 #include <BinFile/binaryfile.h>
+#include <memory>
+#include <vector>
 
 class ISocexplorerPlugin : public QDockWidget
 {
@@ -55,9 +53,6 @@ public:
     ISocexplorerPlugin(QWidget *parent = Q_NULLPTR,bool createPyObject=true):QDockWidget(parent)
     {
         Q_UNUSED(createPyObject)
-        closeAction=Q_NULLPTR;
-        menu=Q_NULLPTR;
-        ChildsMenu=Q_NULLPTR;
         this->Connected = false;
         this->setFeatures(QDockWidget::DockWidgetMovable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetVerticalTitleBar);
     }
@@ -71,13 +66,8 @@ public:
     //! be set by SocExplorer and it can be user accessible if you want.
     virtual void setBaseAddress(uint64_t baseAddress){this->BaseAddress = baseAddress;}
 
-    QList<ISocexplorerPlugin*> childs;
-    ISocexplorerPlugin* parent;
-    QAction* closeAction;
     QString  instanceName(){return _instanceName;}
     QString  instance(){return instanceName();}
-    QMenu* menu;
-    QMenu* ChildsMenu;
 
 signals:
     //! Signal emited each time the plugin is about to be closed.
@@ -86,18 +76,13 @@ signals:
     void registerObject(QObject* object,const QString& instanceName);
 
 public slots:
-    virtual int registermenu(QMenu* menu)
+    void appendChildPlugin(std::shared_ptr<ISocexplorerPlugin> plugin)
     {
-        this->menu = menu->addMenu(this->_instanceName);
-        this->closeAction = this->menu->addAction(tr("Close plugin"));
-        QObject::connect(this->closeAction,SIGNAL(triggered()),this,SLOT(closeMe()));
-        this->ChildsMenu = this->menu->addMenu(QString("Childs"));
-        for(int i=0;i<this->childs.count();i++)
-        {
-            this->childs.at(i)->registermenu(this->ChildsMenu);
-        }
-        emit this->registerObject((QObject*)this,this->instanceName());
-        return 0;
+        this->_children.push_back(plugin);
+    }
+    void setParentPlugin(ISocexplorerPlugin* parent)
+    {
+        this->parent = parent;
     }
     virtual void postInstantiationTrigger(){}
     //! Write slot this is the way your children plugins ask you for writing data.
@@ -163,8 +148,6 @@ public slots:
     virtual void setInstanceName(const QString& newName)
     {
         this->_instanceName = newName;
-        if(this->menu)
-            this->menu->setTitle(this->_instanceName);
         this->setWindowTitle(newName);
         this->setObjectName(newName);
     }
@@ -323,9 +306,15 @@ public slots:
     }
     ISocexplorerPlugin* parentPlugin(){return this->parent;}
     ISocexplorerPlugin* toPlugin(){return static_cast<ISocexplorerPlugin*>(this);}
+    const std::vector<std::shared_ptr<ISocexplorerPlugin>>& children()
+    {
+        return this->_children;
+    }
 protected:
     QString  _instanceName;
     uint64_t BaseAddress;
+    std::vector<std::shared_ptr<ISocexplorerPlugin>> _children;
+    ISocexplorerPlugin* parent;
     bool Connected;
 };
 

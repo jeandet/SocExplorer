@@ -33,7 +33,7 @@ void PluginTreeWidget::itemSelectionChangedslt()
     }
 }
 
-void PluginTreeWidget::treeChanged(const QVector<ISocexplorerPlugin *> &drivers)
+void PluginTreeWidget::treeChanged(const std::vector<std::shared_ptr<ISocexplorerPlugin>> &drivers)
 {
     this->clear();
     for(auto driver:drivers)
@@ -42,7 +42,7 @@ void PluginTreeWidget::treeChanged(const QVector<ISocexplorerPlugin *> &drivers)
         currentItem->setIcon(0,QSvgIcon(":/images/server.svg"));
         currentItem->setText(0,driver->instanceName());
         this->addTopLevelItem(currentItem);
-        if(driver->childs.count()!=0)
+        if(driver->children().size()!=0)
         {
                 this->addplugin(driver,currentItem);
         }
@@ -50,16 +50,16 @@ void PluginTreeWidget::treeChanged(const QVector<ISocexplorerPlugin *> &drivers)
     }
 }
 
-void PluginTreeWidget::addplugin(ISocexplorerPlugin *parentDriver, QTreeWidgetItem *item)
+void PluginTreeWidget::addplugin(const std::shared_ptr<ISocexplorerPlugin>& parentDriver, QTreeWidgetItem *item)
 {
 
-    for(auto driver:parentDriver->childs)
+    for(auto driver:parentDriver->children())
     {
         QTreeWidgetItem* currentItem=new QTreeWidgetItem;
         currentItem->setIcon(0,QSvgIcon(":/images/server.svg"));
         currentItem->setText(0,driver->instanceName());
         item->addChild(currentItem);
-        if(driver->childs.count()!=0)
+        if(driver->children().size()!=0)
         {
                 this->addplugin(driver,currentItem);
         }

@@ -25,6 +25,7 @@
 #include <QObject>
 #include <QString>
 #include <QList>
+#include <QVector>
 #include "pluginscache.h"
 #include <socexplorerplugin.h>
 #include <socexplorerplugininterface.h>
@@ -69,7 +70,7 @@ signals:
     void rootDriverRemoved();
     void closeSysDriverSig(socexplorerplugin* driver);
     void registerObject(QObject* object,const QString& instanceName);
-    void treeChanged(const QList<socexplorerplugin*>& drivers);
+    void treeChanged(const QVector<socexplorerplugin*>& drivers);
 
 public slots:
     QT_ENSURE_STACK_ALIGNED_FOR_SSE void loadSysDriver(const QString name);
@@ -95,12 +96,11 @@ private:
 
     static void changeSysDriverInstName(socexplorerplugin* driver);
     static QMainWindow* mainWindow;
-    static QList<socexplorerplugin*>* drivers;
-    static QList<socexplorerplugin*>* linearDriverList;
-    static QStringList* linearDriverPathList;
+    static QVector<socexplorerplugin*>* drivers;
+    static QVector<socexplorerplugin*>* linearDriverList;
+    static QStringList linearDriverPathList;
     static socexplorerplugin* root;
     static socexplorerplugin* parent;
-    static PluginsCache* cache;
 };
 
 #endif // SOCEXPLORERPROXY_H

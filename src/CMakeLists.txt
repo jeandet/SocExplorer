@@ -1,6 +1,6 @@
 add_subdirectory(common)
 add_subdirectory(SocExplorerEngine)
-
+add_subdirectory(Core)
 
 SET (SRCS
     ./mainwindowsmenubar.cpp
@@ -24,7 +24,6 @@ SET (SRCS
     ./dockablepluginmanager.h
     ./toolbarcontainer.h
     ./toolbar.h
-    ./socexplorer.h
     ./mainwindowsmenubar.h
     ./mainwindow.h
     ./aboutsocexplorer.h

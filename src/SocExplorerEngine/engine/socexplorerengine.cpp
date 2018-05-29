@@ -200,12 +200,12 @@ int SocExplorerEngine::addEnumDevice(const QString &rootPlugin, int VID, int PID
 
 unsigned int SocExplorerEngine::memMeasureSize(socexplorerplugin *plugin, unsigned int address, unsigned int maxSize)
 {
-  return MemTester::measureMemSize(plugin,address,maxSize);
+  //return MemTester::measureMemSize(plugin,address,maxSize);
 }
 
 unsigned int SocExplorerEngine::memMeasureSize(const QString &plugin, unsigned int address, unsigned int maxSize)
 {
-  return MemTester::measureMemSize(plugin,address,maxSize);
+  //return MemTester::measureMemSize(plugin,address,maxSize);
 }
 
 

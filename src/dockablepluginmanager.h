@@ -31,7 +31,6 @@ class dockablePluginManager : public QDockWidget
     Q_OBJECT
 public:
     explicit dockablePluginManager(QWidget *parent = 0);
-    void  setRootLoadable(bool flag);
 
 signals:
     void loadSysDrviver(const QString name);

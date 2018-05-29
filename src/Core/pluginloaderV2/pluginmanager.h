@@ -35,6 +35,7 @@
 #include <QDir>
 #include <QLibrary>
 #include <QPluginLoader>
+#include <memory>
 
 namespace pluginKeys
 {
@@ -138,14 +139,14 @@ public:
         scanFolders();
     }
 
-    ISocexplorerPlugin* makeInstance(const QString &pluginName)
+    std::shared_ptr<ISocexplorerPlugin> makeInstance(const QString &pluginName)
     {
         auto plugin = resolvePluginName(pluginName);
         if (QLibrary::isLibrary(plugin))
         {
             QPluginLoader pluginLoader{plugin};
             if (auto pluginInstance = qobject_cast<ISocexplorerPlugin *>(pluginLoader.instance())) {
-                return pluginInstance;
+                return std::make_shared<ISocexplorerPlugin>(pluginInstance);
             }
         }
         return Q_NULLPTR;

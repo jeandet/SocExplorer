@@ -38,8 +38,3 @@ dockablePluginManager::dockablePluginManager(QWidget *parent) :
 }
 
 
-
-void dockablePluginManager::setRootLoadable(bool flag)
-{
-    //this->managerGui->setRootLoadable(flag);
-}

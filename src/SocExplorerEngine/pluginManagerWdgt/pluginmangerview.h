@@ -22,7 +22,7 @@ signals:
     void loadSysDrviver(const QString name);
     void loadSysDriverToParent(const QString name, const QString instanceName);
     void geteplugintree(void);
-    void treeChanged(const QVector<ISocexplorerPlugin*>& drivers);
+    void treeChanged(const std::vector<std::shared_ptr<ISocexplorerPlugin>>& drivers);
     void changeSysDriverInstName(const QString newinstanceName,const QString previnstanceName);
     void closeSysDriver(const QString instanceName);
     void pluginselected(const QString& instanceName);

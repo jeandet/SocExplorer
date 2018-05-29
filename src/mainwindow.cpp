@@ -37,7 +37,6 @@ SocExplorerMainWindow::SocExplorerMainWindow(QString ScriptToEval, QWidget *pare
     this->makeConnections();
     this->setWindowIcon(QIcon(":/images/icon.png"));
     this->setAcceptDrops(true);
-    this->pluginManager->setRootLoadable(true);
     this->PythonConsoleInst->pyConsoleRunFile(ScriptToEval);
     QFile file(":/styles/SocExplorer.css");
     if(file.open(QIODevice::ReadOnly | QIODevice::Text))

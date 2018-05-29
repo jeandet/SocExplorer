@@ -27,13 +27,10 @@ SET (engine_SRCS
     ./XmlEngine/XMLmodel.h
     ./XmlEngine/xmldriver.h
     ./XmlEngine/XMLdata.h
-    ./pluginsInterface/isocexplorerplugin.h
     ./pluginloader/unix/unixpluginloader.h
     ./pluginloader/pluginscache.h
     ./pluginloader/pluginloader.h
-    ./memtester/memtester.h
     ./plugins/socexplorerplugin.h
-    ./pluginloaderV2/pluginmanager.h
 
 
     ./SOC/socmodel.cpp
@@ -65,7 +62,6 @@ SET (engine_SRCS
     ./pluginloader/unix/unixpluginloader.cpp
     ./pluginloader/pluginloader.cpp
     ./pluginloader/pluginscache.cpp
-    ./memtester/memtester.cpp
     ./plugins/socexplorerplugin.cpp
 
     ./PeripheralWidget/ressources/peripheralwidget.qrc
@@ -147,5 +143,6 @@ target_include_directories(socexplorerengine PUBLIC
 
 target_link_libraries(socexplorerengine PUBLIC
   socexplorercommon
+  socexplorercore
   Qt5::Xml
 )
