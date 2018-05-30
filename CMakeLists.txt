@@ -7,6 +7,8 @@ OPTION (CPPCHECK "Analyzes the source code with cppcheck" OFF)
 OPTION (CLANG_TIDY "Analyzes the source code with Clang Tidy" OFF)
 OPTION (IWYU "Analyzes the source code with Include What You Use" OFF)
 
+option(TeamCity "Change unit tests output format to TeamCity" OFF)
+
 set(CMAKE_CXX_STANDARD 17)
 
 set(CMAKE_AUTOMOC ON)
