@@ -31,6 +31,7 @@
 #include <isocexplorerplugin.h>
 #include <QHash>
 #include <QStringLiteral>
+#include <QStringList>
 #include <iostream>
 #include <QDir>
 #include <QLibrary>
@@ -139,6 +140,12 @@ public:
         scanFolders();
     }
 
+    void addPluginLookupPath(const QString& path, bool update=false)
+    {
+        this->folderList.append(path);
+        if(update)
+            this->scanFolders();
+    }
     std::shared_ptr<ISocexplorerPlugin> makeInstance(const QString &pluginName)
     {
         auto plugin = resolvePluginName(pluginName);

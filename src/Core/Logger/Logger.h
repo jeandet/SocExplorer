@@ -44,6 +44,12 @@ public:
     {
 
     }
+
+    void changeOutput(std::ostream* out)
+    {
+        this->_out = out;
+    }
+
     void setLogLevel(int level)
     {
         this->_logLevel=level;

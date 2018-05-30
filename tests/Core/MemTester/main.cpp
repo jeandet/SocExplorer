@@ -24,19 +24,25 @@ public:
 
     unsigned int Read(unsigned int* Value, int count, uint64_t address)
     {
-        for(int i=0; i<count; i++)
+        if(capacity)
         {
-            Value[i] = static_cast<T>(memory[((address>>(log2(sizeof(T)))) + i)%capacity]);
+            for(int i=0; i<count; i++)
+            {
+                Value[i] = static_cast<T>(memory[((address>>(log2(sizeof(T)))) + i)%capacity]);
+            }
         }
         return static_cast<unsigned int>(count);
     }
 
     unsigned int Write(unsigned int* Value, int count, uint64_t address)
     {
-        for(int i=0; i<count; i++)
+        if(capacity)
         {
-            auto shift = log2(sizeof(T));
-            memory[((address>>(shift)) + i)%capacity] = static_cast<T>(Value[i]);
+            for(int i=0; i<count; i++)
+            {
+                auto shift = log2(sizeof(T));
+                memory[((address>>(shift)) + i)%capacity] = static_cast<T>(Value[i]);
+            }
         }
         return static_cast<unsigned int>(count);
     }
@@ -51,10 +57,11 @@ public:
     {
     }
 private slots:
-    void canMeasureAWorking32BitsMemory_data()
+    void can_Measure_A_Working_32Bits_Memory_data()
     {
         QTest::addColumn<unsigned int>("capacity");
 
+        QTest::newRow("0 Word") << 0u;
         QTest::newRow("1 Word") << 1u;
         QTest::newRow("16 Word") << 16u;
         QTest::newRow("256 Words") << 256u;
@@ -62,7 +69,7 @@ private slots:
         QTest::newRow("256M Words") << 256u*1024u*1024u;
     }
 
-    void canMeasureAWorking32BitsMemory()
+    void can_Measure_A_Working_32Bits_Memory()
     {
         QFETCH(unsigned int, capacity);
         auto mem = FakeMemory{capacity};
@@ -76,10 +83,11 @@ private slots:
 
     }
 
-    void canMeasureAWorking64BitsMemory_data()
+    void can_Measure_A_Working_64Bits_Memory_data()
     {
         QTest::addColumn<unsigned int>("capacity");
 
+        QTest::newRow("0 Word") << 0u;
         QTest::newRow("1 Word") << 1u;
         QTest::newRow("16 Word") << 16u;
         QTest::newRow("256 Words") << 256u;
@@ -87,7 +95,7 @@ private slots:
         QTest::newRow("256M Words") << 256u*1024u*1024u;
     }
 
-    void canMeasureAWorking64BitsMemory()
+    void can_Measure_A_Working_64Bits_Memory()
     {
         QFETCH(unsigned int, capacity);
         auto mem = FakeMemory<uint64_t>{capacity};

@@ -42,8 +42,9 @@ class MemTester
         unsigned int Value;
         unsigned int shift=(bits/8);
         auto address=startAddress;
-        while(address<endAddress)
+        while(address <= endAddress)
         {
+            Value=!address;
             Read(&Value, 1, address);
             if(Value!=address)
                 return false;

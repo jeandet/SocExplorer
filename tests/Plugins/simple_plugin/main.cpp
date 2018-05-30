@@ -24,14 +24,27 @@ public:
         plugin_manager = std::make_unique<PluginManager<fake_logger>>(QStringList{PLUGIN_PATH});
     }
 private slots:
-    void canReadPluginMetadata()
+
+    void can_Update_Plugin_Lookup_Path()
+    {
+        auto loader = std::make_unique<PluginManager<fake_logger>>(QStringList{});
+        auto plugin = loader->makeInstance("SimplePlugin");
+        QVERIFY(plugin==Q_NULLPTR);
+        loader->addPluginLookupPath(PLUGIN_PATH, true);
+        plugin = loader->makeInstance("SimplePlugin");
+        QVERIFY(plugin!=Q_NULLPTR);
+        plugin->setInstanceName("SimplePlugin0");
+        QCOMPARE("SimplePlugin0", plugin->instanceName());
+    }
+
+    void can_Read_Plugin_Metadata()
     {
         QCOMPARE("SimplePlugin", plugin_manager->pluginName("SimplePlugin"));
         QCOMPARE("Alexis Jeandet", plugin_manager->pluginAuthor("SimplePlugin"));
         QCOMPARE("1.0", plugin_manager->pluginVersion("SimplePlugin"));
     }
 
-    void canInstanciateSimplePlugin()
+    void can_Instanciate_Simple_Plugin()
     {
         auto plugin = plugin_manager->makeInstance("SimplePlugin");
         QVERIFY(plugin!=Q_NULLPTR);
@@ -39,7 +52,7 @@ private slots:
         QCOMPARE("SimplePlugin0", plugin->instanceName());
     }
 
-    void cantInstanciateWrongPlugin()
+    void can_t_Instanciate_Wrong_Plugin()
     {
         auto plugin = plugin_manager->makeInstance("WrongPlugin");
         QVERIFY(plugin==Q_NULLPTR);

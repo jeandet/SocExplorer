@@ -32,28 +32,88 @@
 #include <memory>
 #include <vector>
 #include "pluginloaderV2/pluginmanager.h"
+#include <SocExplorerCore.h>
+#include <QHash>
+#include <QObject>
 
 class SOC
 {
-    std::vector<std::shared_ptr<ISocexplorerPlugin>> plugins;
-    std::vector<std::shared_ptr<ISocexplorerPlugin>> root_plugins;
+    QHash<QString,std::shared_ptr<ISocexplorerPlugin>> plugins;
+    QHash<QString,std::shared_ptr<ISocexplorerPlugin>> root_plugins;
 
     QString name;
+    PluginManager<SocExplorerCore> plugin_loader;
+
     SOC(const QString& name)
-        :name(name)
+        :name(name),plugin_loader({})
     {
 
     }
+
+    QString _makeInstanceName(const QString& baseName)const
+    {
+        int i=0;
+        while(this->plugins.keys().contains(baseName+QString::number(i)))
+            i+=1;
+        return baseName+QString::number(i);
+    }
+
+    bool _loadPlugin(const QString& name, const QString& instanceName)
+    {
+        auto plugin = plugin_loader.makeInstance(name);
+        if(plugin!=Q_NULLPTR)
+        {
+            this->root_plugins[instanceName] = plugin;
+            this->plugins[instanceName] = plugin;
+            for(const auto& callback:plugin_update_callbacks)
+            {
+                callback(instanceName,"");
+            }
+            return true;
+        }
+        return false;
+    }
+    QHash<int,std::function<void(const QString&,const QString&)>> plugin_update_callbacks;
 public:
+
     static SOC& instance()
     {
         static SOC inst("SOC");
         return inst;
     }
 
-    bool loadPlugin(const QString& name)
+    static bool loadPlugin(const QString& name)
     {
+        auto& soc = SOC::instance();
+        return soc._loadPlugin(name,soc._makeInstanceName(name));
+    }
 
+    static bool loadPlugin(const QString& name, const QString& instanceName)
+    {
+        return  SOC::instance()._loadPlugin(name,instanceName);
+    }
+
+    static std::shared_ptr<ISocexplorerPlugin> getPlugin(const QString &instanceName)
+    {
+        return SOC::instance().plugins.value(instanceName);
+    }
+
+    static void addPluginLookupPath(const QString& path)
+    {
+        return SOC::instance().plugin_loader.addPluginLookupPath(path, true);
+    }
+
+    static int registerPluginUpdateCallback(std::function<void(const QString&,const QString&)> callback)
+    {
+        static int i=0;
+        i+=1;
+        SOC::instance().plugin_update_callbacks[i]=callback;
+        return i;
+    }
+
+    static void unregisterPluginUpdateCallback(int token)
+    {
+        SOC::instance().plugin_update_callbacks.remove(token);
     }
 };
 #endif //SOC_H

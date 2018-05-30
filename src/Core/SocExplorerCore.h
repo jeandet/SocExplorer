@@ -35,7 +35,6 @@
 #include "Logger/Logger.h"
 #include <iostream>
 #include <fstream>
-#include <SOC/SOC.h>
 
 class SocExplorerCore
 {
@@ -48,15 +47,24 @@ class SocExplorerCore
     }
     ~SocExplorerCore(){}
 
+    void p_message(const QString& sender, const QString& text, int level)
+    {
+        _logger.message(sender,text,level);
+    }
+
 public:
     static SocExplorerCore& instance()
     {
         static SocExplorerCore inst;
         return inst;
     }
-    void message(const QString& sender, const QString& text, int level)
+    static void changeLoggerOutput(std::ostream* out)
     {
-        _logger.message(sender,text,level);
+        SocExplorerCore::instance()._logger.changeOutput(out);
+    }
+    static void message(const QString& sender, const QString& text, int level)
+    {
+        SocExplorerCore::instance().p_message(sender,text,level);
     }
 };
 

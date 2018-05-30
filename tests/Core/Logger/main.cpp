@@ -21,7 +21,7 @@ public:
     }
 private slots:
 
-    void doesntlogsLowerLogLevelMessages()
+    void doesn_t_logs_Lower_Log_Level_Messages()
     {
         this->sstr->clear();
         this->sstr->flush();
@@ -31,7 +31,7 @@ private slots:
 
     }
 
-    void logsHigherLogLevelMessages()
+    void logs_Higher_Log_Level_Messages()
     {
         this->sstr->clear();
         this->sstr->flush();
@@ -41,7 +41,7 @@ private slots:
     }
 
 
-    void logsSameLogLevelMessages()
+    void logs_Same_Log_Level_Messages()
     {
         this->sstr->clear();
         this->sstr->flush();
