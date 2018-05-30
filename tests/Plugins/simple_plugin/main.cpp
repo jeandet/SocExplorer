@@ -34,14 +34,14 @@ private slots:
         plugin = loader->makeInstance("SimplePlugin");
         QVERIFY(plugin!=Q_NULLPTR);
         plugin->setInstanceName("SimplePlugin0");
-        QCOMPARE("SimplePlugin0", plugin->instanceName());
+        QCOMPARE(QStringLiteral("SimplePlugin0"), plugin->instanceName());
     }
 
     void can_Read_Plugin_Metadata()
     {
-        QCOMPARE("SimplePlugin", plugin_manager->pluginName("SimplePlugin"));
-        QCOMPARE("Alexis Jeandet", plugin_manager->pluginAuthor("SimplePlugin"));
-        QCOMPARE("1.0", plugin_manager->pluginVersion("SimplePlugin"));
+        QCOMPARE(QStringLiteral("SimplePlugin"), plugin_manager->pluginName("SimplePlugin"));
+        QCOMPARE(QStringLiteral("Alexis Jeandet"), plugin_manager->pluginAuthor("SimplePlugin"));
+        QCOMPARE(QStringLiteral("1.0"), plugin_manager->pluginVersion("SimplePlugin"));
     }
 
     void can_Instanciate_Simple_Plugin()
@@ -49,7 +49,7 @@ private slots:
         auto plugin = plugin_manager->makeInstance("SimplePlugin");
         QVERIFY(plugin!=Q_NULLPTR);
         plugin->setInstanceName("SimplePlugin0");
-        QCOMPARE("SimplePlugin0", plugin->instanceName());
+        QCOMPARE(QStringLiteral("SimplePlugin0"), plugin->instanceName());
     }
 
     void can_t_Instanciate_Wrong_Plugin()

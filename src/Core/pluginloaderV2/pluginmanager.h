@@ -30,7 +30,7 @@
 #define PLUGINMANAGER_H
 #include <isocexplorerplugin.h>
 #include <QHash>
-#include <QStringLiteral>
+#include <QString>
 #include <QStringList>
 #include <iostream>
 #include <QDir>

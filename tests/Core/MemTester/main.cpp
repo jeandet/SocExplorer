@@ -13,10 +13,10 @@ constexpr std::uint32_t log2(std::size_t n)
 template<typename T=unsigned int>
 class FakeMemory
 {
-    unsigned int capacity;
+    std::size_t capacity;
     std::vector<T> memory;
 public:
-    FakeMemory(unsigned int capacity)
+    FakeMemory(std::size_t capacity)
         :capacity(capacity)
     {
         memory.resize(capacity);
@@ -55,23 +55,24 @@ public:
     AMemTester(QObject* parent=Q_NULLPTR)
         :QObject(parent)
     {
+
     }
 private slots:
     void can_Measure_A_Working_32Bits_Memory_data()
     {
-        QTest::addColumn<unsigned int>("capacity");
+        QTest::addColumn<std::size_t>("capacity");
 
-        QTest::newRow("0 Word") << 0u;
-        QTest::newRow("1 Word") << 1u;
-        QTest::newRow("16 Word") << 16u;
-        QTest::newRow("256 Words") << 256u;
-        QTest::newRow("256k Words") << 256u*1024u;
-        QTest::newRow("256M Words") << 256u*1024u*1024u;
+        QTest::newRow("0 Word") << 0ul;
+        QTest::newRow("1 Word") << 1ul;
+        QTest::newRow("16 Word") << 16ul;
+        QTest::newRow("256 Words") << 256ul;
+        QTest::newRow("256k Words") << 256ul*1024ul;
+        QTest::newRow("256M Words") << 256ul*1024ul*1024ul;
     }
 
     void can_Measure_A_Working_32Bits_Memory()
     {
-        QFETCH(unsigned int, capacity);
+        QFETCH(std::size_t, capacity);
         auto mem = FakeMemory{capacity};
         auto Read = [&mem](unsigned int* Value, int count, uint64_t address)
         {return mem.Read(Value, count, address);};
@@ -85,19 +86,19 @@ private slots:
 
     void can_Measure_A_Working_64Bits_Memory_data()
     {
-        QTest::addColumn<unsigned int>("capacity");
+        QTest::addColumn<std::size_t>("capacity");
 
-        QTest::newRow("0 Word") << 0u;
-        QTest::newRow("1 Word") << 1u;
-        QTest::newRow("16 Word") << 16u;
-        QTest::newRow("256 Words") << 256u;
-        QTest::newRow("256k Words") << 256u*1024u;
-        QTest::newRow("256M Words") << 256u*1024u*1024u;
+        QTest::newRow("0 Word") << 0ul;
+        QTest::newRow("1 Word") << 1ul;
+        QTest::newRow("16 Word") << 16ul;
+        QTest::newRow("256 Words") << 256ul;
+        QTest::newRow("256k Words") << 256ul*1024ul;
+        QTest::newRow("256M Words") << 256ul*1024ul*1024ul;
     }
 
     void can_Measure_A_Working_64Bits_Memory()
     {
-        QFETCH(unsigned int, capacity);
+        QFETCH(std::size_t, capacity);
         auto mem = FakeMemory<uint64_t>{capacity};
         auto Read = [&mem](unsigned int* Value, int count, uint64_t address)
         {return mem.Read(Value, count, address);};
