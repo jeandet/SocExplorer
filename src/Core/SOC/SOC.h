@@ -41,6 +41,8 @@ class SOC
     QHash<QString,std::shared_ptr<ISocexplorerPlugin>> plugins;
     QHash<QString,std::shared_ptr<ISocexplorerPlugin>> root_plugins;
 
+    QHash<int,std::function<void(const QString&,const QString&)>> plugin_update_callbacks;
+
     QString name;
     PluginManager<SocExplorerCore> plugin_loader;
 
@@ -63,6 +65,7 @@ class SOC
         auto plugin = plugin_loader.makeInstance(name);
         if(plugin!=Q_NULLPTR)
         {
+            plugin->setInstanceName(instanceName);
             this->root_plugins[instanceName] = plugin;
             this->plugins[instanceName] = plugin;
             for(const auto& callback:plugin_update_callbacks)
@@ -73,7 +76,28 @@ class SOC
         }
         return false;
     }
-    QHash<int,std::function<void(const QString&,const QString&)>> plugin_update_callbacks;
+
+    bool _loadChildPlugin(const QString& name, const QString& parentInstanceName, const QString& instanceName)
+    {
+        if(this->plugins.contains(parentInstanceName))
+        {
+            auto plugin = plugin_loader.makeInstance(name);
+            if(plugin!=Q_NULLPTR)
+            {
+                plugin->setInstanceName(instanceName);
+                auto parent = this->plugins[parentInstanceName];
+                parent->appendChildPlugin(plugin);
+                this->plugins[instanceName] = plugin;
+                for(const auto& callback:plugin_update_callbacks)
+                {
+                    callback(instanceName, parentInstanceName);
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
 public:
 
     static SOC& instance()
@@ -91,6 +115,17 @@ public:
     static bool loadPlugin(const QString& name, const QString& instanceName)
     {
         return  SOC::instance()._loadPlugin(name,instanceName);
+    }
+
+    static bool loadChildPlugin(const QString& name, const QString& parentInstanceName)
+    {
+        auto& soc = SOC::instance();
+        return  soc._loadChildPlugin(name,parentInstanceName,soc._makeInstanceName(name));
+    }
+
+    static bool loadChildPlugin(const QString& name, const QString& parentInstanceName, const QString& instanceName)
+    {
+        return  SOC::instance()._loadChildPlugin(name,parentInstanceName,instanceName);
     }
 
     static std::shared_ptr<ISocexplorerPlugin> getPlugin(const QString &instanceName)

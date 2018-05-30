@@ -30,6 +30,17 @@ private slots:
         QVERIFY(SOC::getPlugin( "MyTestPlugin")!=Q_NULLPTR);
     }
 
+    void can_Instanciate_A_Plugin_As_Child()
+    {
+        QVERIFY(SOC::loadPlugin("SimplePlugin", "Parent"));
+        QVERIFY(SOC::loadChildPlugin("SimplePlugin", "Parent","Child"));
+        auto child = SOC::getPlugin("Child");
+        auto parent = SOC::getPlugin("Parent");
+        QVERIFY(child!=Q_NULLPTR);
+        QVERIFY(parent!=Q_NULLPTR);
+        QVERIFY(child->parentPlugin()==parent.get());
+    }
+
     void calls_A_Callback_On_Plugin_Instanciation()
     {
         bool flag=false;

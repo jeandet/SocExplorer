@@ -79,6 +79,7 @@ public slots:
     void appendChildPlugin(std::shared_ptr<ISocexplorerPlugin> plugin)
     {
         this->_children.push_back(plugin);
+        plugin->setParentPlugin(this);
     }
     void setParentPlugin(ISocexplorerPlugin* parent)
     {
