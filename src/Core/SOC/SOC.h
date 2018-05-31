@@ -41,7 +41,7 @@ class SOC
     QHash<QString,std::shared_ptr<ISocexplorerPlugin>> plugins;
     QHash<QString,std::shared_ptr<ISocexplorerPlugin>> root_plugins;
 
-    QHash<int,std::function<void(const QString&,const QString&)>> plugin_update_callbacks;
+    QHash<int,std::function<void(const QHash<QString,std::shared_ptr<ISocexplorerPlugin>>&)>> plugin_update_callbacks;
 
     QString name;
     PluginManager<SocExplorerCore> plugin_loader;
@@ -60,6 +60,35 @@ class SOC
         return baseName+QString::number(i);
     }
 
+    void notifyPluginChange()
+    {
+        for(const auto& callback:plugin_update_callbacks)
+        {
+            callback(this->root_plugins);
+        }
+    }
+
+    bool _unloadPlugin(const std::shared_ptr<ISocexplorerPlugin>& plugin)
+    {
+        for(auto& child:plugin->children())
+        {
+            _unloadPlugin(child);
+        }
+        this->root_plugins.remove(plugin->instanceName());
+        this->plugins.remove(plugin->instanceName());
+        return true;
+    }
+
+    bool _unloadPlugin(const QString& instanceName)
+    {
+        auto plugin = this->plugins[instanceName];
+        if(plugin==Q_NULLPTR)
+            return false;
+        auto success = _unloadPlugin(plugin);
+        notifyPluginChange();
+        return success;
+    }
+
     bool _loadPlugin(const QString& name, const QString& instanceName)
     {
         auto plugin = plugin_loader.makeInstance(name);
@@ -68,10 +97,7 @@ class SOC
             plugin->setInstanceName(instanceName);
             this->root_plugins[instanceName] = plugin;
             this->plugins[instanceName] = plugin;
-            for(const auto& callback:plugin_update_callbacks)
-            {
-                callback(instanceName,"");
-            }
+            notifyPluginChange();
             return true;
         }
         return false;
@@ -88,10 +114,7 @@ class SOC
                 auto parent = this->plugins[parentInstanceName];
                 parent->appendChildPlugin(plugin);
                 this->plugins[instanceName] = plugin;
-                for(const auto& callback:plugin_update_callbacks)
-                {
-                    callback(instanceName, parentInstanceName);
-                }
+                notifyPluginChange();
                 return true;
             }
         }
@@ -128,6 +151,11 @@ public:
         return  SOC::instance()._loadChildPlugin(name,parentInstanceName,instanceName);
     }
 
+    static bool unloadPlugin(const QString& instanceName)
+    {
+        return  SOC::instance()._unloadPlugin(instanceName);
+    }
+
     static std::shared_ptr<ISocexplorerPlugin> getPlugin(const QString &instanceName)
     {
         return SOC::instance().plugins.value(instanceName);
@@ -138,7 +166,7 @@ public:
         return SOC::instance().plugin_loader.addPluginLookupPath(path, true);
     }
 
-    static int registerPluginUpdateCallback(std::function<void(const QString&,const QString&)> callback)
+    static int registerPluginUpdateCallback(std::function<void(const QHash<QString,std::shared_ptr<ISocexplorerPlugin>>&)> callback)
     {
         static int i=0;
         i+=1;

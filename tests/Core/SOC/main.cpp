@@ -21,7 +21,21 @@ private slots:
 
     void can_Load_A_Plugin()
     {
-        QVERIFY(SOC::loadPlugin("SimplePlugin"));
+        QVERIFY(SOC::loadPlugin("SimplePlugin","SimplePlugin0"));
+        auto plugin = SOC::getPlugin("SimplePlugin0");
+        QVERIFY(plugin!=Q_NULLPTR);
+    }
+
+    void can_Unload_A_Plugin()
+    {
+        QVERIFY(SOC::loadPlugin("SimplePlugin","SimplePluginToUnload"));
+        auto plugin = SOC::getPlugin("SimplePluginToUnload");
+        QVERIFY(plugin!=Q_NULLPTR);
+
+        QVERIFY(SOC::unloadPlugin("SimplePluginToUnload"));
+        plugin = SOC::getPlugin("SimplePluginToUnload");
+        QVERIFY(plugin==Q_NULLPTR);
+
     }
 
     void can_Load_A_Plugin_With_Agiven_Instance_Name()
@@ -43,33 +57,37 @@ private slots:
 
     void calls_A_Callback_On_Plugin_Instanciation()
     {
-        bool flag=false;
-        QString name;
-        QString parent;
-        auto callback = [&flag, &name, &parent](const QString& nameArg,const QString& parentArg)
+        bool callbackCalled=false;
+        bool foundPlugin;
+        const QString pluginInstName{"MyTestPlugin1"};
+        auto callback = [&callbackCalled, &foundPlugin, &pluginInstName](const QHash<QString,std::shared_ptr<ISocexplorerPlugin>>& tree)
         {
-            flag = true;
-            name = nameArg;
-            parent = parentArg;
+            callbackCalled = true;
+            foundPlugin = tree.contains(pluginInstName);
         };
 
         auto token = SOC::registerPluginUpdateCallback(callback);
+        // Lodaing a plugin should trigger callback and we should find loaded plugin
+        QVERIFY(SOC::loadPlugin("SimplePlugin", pluginInstName));
+        QVERIFY(SOC::getPlugin( pluginInstName)!=Q_NULLPTR);
+        QVERIFY(callbackCalled==true);
+        QVERIFY(foundPlugin==true);
 
-        QVERIFY(SOC::loadPlugin("SimplePlugin", "MyTestPlugin1"));
-        QVERIFY(SOC::getPlugin( "MyTestPlugin1")!=Q_NULLPTR);
-        QVERIFY(flag==true);
-        QVERIFY(parent=="");
-        QVERIFY(name=="MyTestPlugin1");
+        // Unlodaing a plugin should trigger callback and we shouldn't find unloaded plugin
+        SOC::unloadPlugin(pluginInstName);
+        QVERIFY(SOC::getPlugin( pluginInstName)==Q_NULLPTR);
+        QVERIFY(callbackCalled==true);
+        QVERIFY(foundPlugin==false);
+
 
         SOC::unregisterPluginUpdateCallback(token);
-
-        flag = false;
-        name="";
-        QVERIFY(SOC::loadPlugin("SimplePlugin", "MyTestPlugin"));
-        QVERIFY(SOC::getPlugin( "MyTestPlugin")!=Q_NULLPTR);
-        QVERIFY(flag==false);
-        QVERIFY(parent=="");
-        QVERIFY(name=="");
+        // Callback is unregistered so it shouldn't be called
+        callbackCalled = false;
+        foundPlugin = false;
+        QVERIFY(SOC::loadPlugin("SimplePlugin", pluginInstName));
+        QVERIFY(SOC::getPlugin(pluginInstName)!=Q_NULLPTR);
+        QVERIFY(callbackCalled==false);
+        QVERIFY(foundPlugin==false);
     }
 };
 
