@@ -44,6 +44,7 @@
 #include <BinFile/binaryfile.h>
 #include <memory>
 #include <vector>
+#include <address.h>
 
 class ISocexplorerPlugin : public QDockWidget
 {
@@ -60,11 +61,11 @@ public:
     virtual bool isConnected(){return this->Connected;}
     //! Gives the associated Vendor IDentifier, usefull to automatically associate plugins with found
     //! hardware while board enumeration.
-    virtual uint64_t baseAddress(){return this->BaseAddress;}
+    virtual address64_t baseAddress(){return this->BaseAddress;}
     //! Sets the base address of the current instance, for example if your plugin is supposed to drive
     //! an UART it will correspond to the address of it's first register. This address have at least to
     //! be set by SocExplorer and it can be user accessible if you want.
-    virtual void setBaseAddress(uint64_t baseAddress){this->BaseAddress = baseAddress;}
+    virtual void setBaseAddress(address64_t baseAddress){this->BaseAddress = baseAddress;}
 
     QString  instanceName(){return _instanceName;}
     QString  instance(){return instanceName();}
@@ -93,7 +94,7 @@ public slots:
     //! \param count Number of 32 bits words you should to write.
     //! \param address Address from where you should to start to write.
     //! \return Quantity of 32 bits words writtens.
-    virtual unsigned int Write(unsigned int* Value, int count, uint64_t address)
+    virtual unsigned int Write(unsigned int* Value, int count, address64_t address)
     {
         if(parent!=Q_NULLPTR)
         {
@@ -102,7 +103,7 @@ public slots:
         return 0;
     }
 
-    void Write(uint64_t address, QList<QVariant> dataList)
+    void Write(address64_t address, QList<QVariant> dataList)
     {
         unsigned int data[dataList.count()];
         for(int i = 0;i<dataList.count();i++)
@@ -118,7 +119,7 @@ public slots:
     //! \param count Number of 32 bits words you should to read.
     //! \param address Address from where you should to start to read.
     //! \return Quantity of 32 bits words read.
-    virtual unsigned int Read(unsigned int* Value, int count, uint64_t address)
+    virtual unsigned int Read(unsigned int* Value, int count, address64_t address)
     {
         if(parent!=Q_NULLPTR)
         {
@@ -126,7 +127,7 @@ public slots:
         }
         return 0;
     }
-    QVariantList Read(uint64_t address, int count)
+    QVariantList Read(address64_t address, int count)
     {
         unsigned int data[count];
         QVariantList result;
@@ -153,7 +154,7 @@ public slots:
         this->setObjectName(newName);
     }
 
-    virtual bool dumpMemory(uint64_t address, unsigned int count, QString file)
+    virtual bool dumpMemory(address64_t address, unsigned int count, QString file)
     {
         unsigned int* buffer = (unsigned int*)malloc(count*sizeof(unsigned int));
         if(buffer!=NULL)
@@ -164,7 +165,7 @@ public slots:
                 return false;
             QTextStream out(&outfile);
             for(int i=0;(unsigned int)i<count;i++)
-                out << "0x"+QString::number(address+(i*4),16) + ": 0x" + QString::number(buffer[i],16) + "\n";
+                out << "0x"+QString::number(address.value+(i*4),16) + ": 0x" + QString::number(buffer[i],16) + "\n";
             free(buffer);
             out.flush();
             outfile.close();
@@ -173,7 +174,7 @@ public slots:
         return false;
     }
 
-    virtual bool dumpMemory(uint64_t address,unsigned int count,QString file,const QString& format)
+    virtual bool dumpMemory(address64_t address,unsigned int count,QString file,const QString& format)
     {
         unsigned int* buffer = (unsigned int*)malloc(count*sizeof(unsigned int));
         if(buffer!=NULL)
@@ -191,13 +192,13 @@ public slots:
 #elif __BYTE_ORDER == __BIG_ENDIAN
 
 #endif
-                codeFragment fragment((char*)buffer,count*4,address);
+                codeFragment fragment((char*)buffer,count*4,address.value);
                 srecFile::toSrec(QList<codeFragment*>()<<&fragment,file);
             }
             if(!format.compare("bin",Qt::CaseInsensitive))
             {
                 //beware this format is not portable from a big endian host to a litle endian one
-                codeFragment fragment((char*)buffer,count*4,address);
+                codeFragment fragment((char*)buffer,count*4,address.value);
                 binaryFile::toBinary(QList<codeFragment*>()<<&fragment,file);
             }
             if(!format.compare("hexa",Qt::CaseInsensitive))
@@ -207,7 +208,7 @@ public slots:
                     return false;
                 QTextStream out(&outfile);
                 for(int i=0;(unsigned int)i<count;i++)
-                    out << "0x"+QString::number(address+(i*4),16) + ": 0x" + QString::number(buffer[i],16) + "\n";
+                    out << "0x"+QString::number(address.value+(i*4),16) + ": 0x" + QString::number(buffer[i],16) + "\n";
                 free(buffer);
                 out.flush();
                 outfile.close();
@@ -217,7 +218,7 @@ public slots:
         return false;
     }
 
-    virtual bool memSet(uint64_t address, int value, unsigned int count)
+    virtual bool memSet(address64_t address, int value, unsigned int count)
     {
         unsigned int* buffer = static_cast<unsigned int*>(malloc(count*sizeof(unsigned int)));
         if(buffer!=Q_NULLPTR)
@@ -230,7 +231,7 @@ public slots:
         return false;
     }
 
-    virtual bool loadbin(uint64_t address,QString file)
+    virtual bool loadbin(address64_t address,QString file)
     {
         QFile infile(file);
         if (!infile.open(QIODevice::ReadOnly))
@@ -272,13 +273,13 @@ public slots:
                             {
                                 buffer[l] = socexplorerBswap32(buffer[l]);
                             }
-                            this->Write(buffer,size,fragments.at(i)->address);
+                            this->Write(buffer,size,address64_t{fragments.at(i)->address});
                             free(buffer);
                         }
                     }
                     else
                     {
-                        this->Write((uint32_t*) fragments.at(i)->data,size,fragments.at(i)->address);
+                        this->Write((uint32_t*) fragments.at(i)->data,size,address64_t{fragments.at(i)->address});
                     }
 #elif __BYTE_ORDER == __BIG_ENDIAN
                     if(file->litleendian)
@@ -291,13 +292,13 @@ public slots:
                             {
                                 buffer[l] = socexplorerBswap32(buffer[l]);
                             }
-                            this->Write(buffer,size,fragments.at(i)->address);
+                            this->Write(buffer,size,address64_t{fragments.at(i)->address});
                             free(buffer);
                         }
                     }
                     else
                     {
-                        this->Write((uint32_t*) fragments.at(i)->data,size,fragments.at(i)->address);
+                        this->Write((uint32_t*) fragments.at(i)->data,size,address64_t{fragments.at(i)->address});
                     }
 #endif
                 }
@@ -313,7 +314,7 @@ public slots:
     }
 protected:
     QString  _instanceName;
-    uint64_t BaseAddress;
+    address64_t BaseAddress;
     std::vector<std::shared_ptr<ISocexplorerPlugin>> _children;
     ISocexplorerPlugin* parent;
     bool Connected;

@@ -55,6 +55,7 @@ add_definitions(-DSOCEXPLORER_TRANSLATION_PATH="/etc/SocExplorer/translations")
 add_definitions(-DSOCEXPLORER_CONFIG_PATH="/etc/SocExplorer")
 add_definitions(-DSOCEXPLORER_SHARE_PATH="/usr/share/SocExplorer")
 
+add_subdirectory(opaque-1.3.0)
 add_subdirectory(src)
 add_subdirectory(tests)
 

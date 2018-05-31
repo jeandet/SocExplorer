@@ -4,6 +4,7 @@
 #include <memtester.h>
 #include <memory>
 #include <stdint.h>
+#include <address.h>
 
 constexpr std::uint32_t log2(std::size_t n)
 {
@@ -22,26 +23,26 @@ public:
         memory.resize(capacity);
     }
 
-    unsigned int Read(unsigned int* Value, int count, uint64_t address)
+    unsigned int Read(unsigned int* Value, int count, address64_t address)
     {
         if(capacity)
         {
             for(int i=0; i<count; i++)
             {
-                Value[i] = static_cast<T>(memory[((address>>(log2(sizeof(T)))) + i)%capacity]);
+                Value[i] = static_cast<T>(memory[((address.value>>(log2(sizeof(T)))) + i)%capacity]);
             }
         }
         return static_cast<unsigned int>(count);
     }
 
-    unsigned int Write(unsigned int* Value, int count, uint64_t address)
+    unsigned int Write(unsigned int* Value, int count, address64_t address)
     {
         if(capacity)
         {
             for(int i=0; i<count; i++)
             {
                 auto shift = log2(sizeof(T));
-                memory[((address>>(shift)) + i)%capacity] = static_cast<T>(Value[i]);
+                memory[((address.value>>(shift)) + i)%capacity] = static_cast<T>(Value[i]);
             }
         }
         return static_cast<unsigned int>(count);
@@ -74,12 +75,12 @@ private slots:
     {
         QFETCH(std::size_t, capacity);
         auto mem = FakeMemory{capacity};
-        auto Read = [&mem](unsigned int* Value, int count, uint64_t address)
+        auto Read = [&mem](unsigned int* Value, int count, address64_t address)
         {return mem.Read(Value, count, address);};
-        auto Write = [&mem](unsigned int* Value, int count, uint64_t address)
+        auto Write = [&mem](unsigned int* Value, int count, address64_t address)
         {return mem.Write(Value, count, address);};
 
-        auto result = MemTester::measureMemSize<32>(Write, Read, 0);
+        auto result = MemTester::measureMemSize<32>(Write, Read, address64_t{0});
         QCOMPARE(result/4, capacity);
 
     }
@@ -100,12 +101,12 @@ private slots:
     {
         QFETCH(std::size_t, capacity);
         auto mem = FakeMemory<uint64_t>{capacity};
-        auto Read = [&mem](unsigned int* Value, int count, uint64_t address)
+        auto Read = [&mem](unsigned int* Value, int count, address64_t address)
         {return mem.Read(Value, count, address);};
-        auto Write = [&mem](unsigned int* Value, int count, uint64_t address)
+        auto Write = [&mem](unsigned int* Value, int count, address64_t address)
         {return mem.Write(Value, count, address);};
 
-        auto result = MemTester::measureMemSize<64>(Write, Read, 0);
+        auto result = MemTester::measureMemSize<64>(Write, Read, address64_t{0});
         QCOMPARE(result/8, capacity);
 
     }

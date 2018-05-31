@@ -6,6 +6,7 @@ SET (core_SRCS
     ./SOC/SOC.h
     ./Logger/Logger.h
     ./SocExplorerCore.h
+    ./address.h
 
     ./memtester/memtester.cpp
     ./SOC/SOC.cpp
@@ -44,4 +45,5 @@ target_include_directories(socexplorercore PUBLIC
 
 target_link_libraries(socexplorercore PUBLIC
   socexplorercommon
+  opaque
 )

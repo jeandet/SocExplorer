@@ -31,10 +31,12 @@
 #include <isocexplorerplugin.h>
 #include <memory>
 #include <vector>
+#include <functional>
 #include "pluginloaderV2/pluginmanager.h"
 #include <SocExplorerCore.h>
 #include <QHash>
 #include <QObject>
+
 
 class SOC
 {

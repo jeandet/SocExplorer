@@ -26,60 +26,45 @@
 /*--                  Author : Alexis Jeandet
 --                     Mail : alexis.jeandet@lpp.polytechnique.fr
 ----------------------------------------------------------------------------*/
-#ifndef MEMTESTER_H
-#define MEMTESTER_H
-#include <isocexplorerplugin.h>
+#ifndef ADDRESS_H
+#define ADDRESS_H
+#include <opaque/numeric_typedef.hpp>
 #include <stdint.h>
-#include <memory>
-#include <functional>
-#include <address.h>
 
-class MemTester
-{
-    template<unsigned int bits=32>
-    static bool checkSpace(std::function<unsigned int(unsigned int* Value, int count, address64_t address)>Read,
-                           address64_t startAddress, address64_t endAddress)
-    {
-        unsigned int Value;
-        offset64_t shift{bits/8};
-        auto address=startAddress;
-        while(address <= endAddress)
-        {
-            Value=!address;
-            Read(&Value, 1, address);
-            if(Value!=address.value)
-                return false;
-            shift = shift<<1;
-            address = startAddress + shift;
-        };
-        return true;
-    }
+/**
+ * Taken from https://sourceforge.net/p/opaque-typedef/wiki/Home/
+ * This exactly what we want
+ */
 
-    MemTester(){}
-    ~MemTester(){}
-
-public:
-
-    template<unsigned int bits=32>
-    static std::size_t measureMemSize(std::function<unsigned int(unsigned int* Value, int count, address64_t address)>Write,
-                                      std::function<unsigned int(unsigned int* Value, int count, address64_t address)>Read,
-                                      address64_t address,unsigned int maxSize=0xFFFFFFFF
-            )
-    {
-        unsigned int curVal=address.value;
-        address64_t testAddress=address;
-        offset64_t shift{bits/8};
-        while(testAddress>=address)
-        {
-            Write(&curVal,1,testAddress);
-            if(!checkSpace<bits>(Read,address,testAddress))
-                break;
-            testAddress = address + shift;
-            curVal = testAddress.value;
-            shift = shift<<1;
-        }
-        return (testAddress-address).value;
-    }
+template <typename T>
+struct offset : opaque::numeric_typedef<T, offset<T>> {
+  using base  = opaque::numeric_typedef<T, offset<T>>;
+  using base::base;
 };
 
-#endif // MEMTESTER_H
+template <typename T>
+struct address : opaque::numeric_typedef_base<T, address<T>>
+  , opaque::binop::addable     <address<T>, true , address<T>,  offset<T>>
+  , opaque::binop::addable     <address<T>, true ,  offset<T>, address<T>>
+  , opaque::binop::subtractable<address<T>, false, address<T>,  offset<T>>
+  , opaque::binop::subtractable<offset<T> , false, address<T>, address<T>, T, T>
+{
+  using base   = opaque::numeric_typedef_base<T, address<T>>;
+  using base::base;
+  address& operator*=(const address&) = delete;
+  address& operator+=(const address&) = delete;
+  address& operator-=(const address&) = delete;
+  address& operator+=(const offset<T>& o) {
+    this->value += o.value;
+    return *this;
+  }
+  address& operator-=(const offset<T>& o) {
+    this->value -= o.value;
+    return *this;
+  }
+};
+
+using offset64_t = offset<uint64_t>;
+using address64_t = address<uint64_t>;
+
+#endif //ADDRESS_H
