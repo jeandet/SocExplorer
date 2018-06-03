@@ -1,3 +1,5 @@
+add_subdirectory(qhexedit)
+add_subdirectory(genericBinaryFiles)
 add_subdirectory(common)
 add_subdirectory(SocExplorerEngine)
 add_subdirectory(Core)

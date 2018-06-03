@@ -36,10 +36,12 @@
 #include <SocExplorerCore.h>
 #include <QHash>
 #include <QObject>
-
+#include "socperipheral.h"
 
 class SOC
 {
+    QHash<QString,address64_t> symbols_LUT;
+
     QHash<QString,std::shared_ptr<ISocexplorerPlugin>> plugins;
     QHash<QString,std::shared_ptr<ISocexplorerPlugin>> root_plugins;
 
@@ -47,6 +49,8 @@ class SOC
 
     QString name;
     PluginManager<SocExplorerCore> plugin_loader;
+
+    QHash<QString, SOCPeripheral> _peripherals;
 
     SOC(const QString& name)
         :name(name),plugin_loader({})
@@ -179,6 +183,21 @@ public:
     static void unregisterPluginUpdateCallback(int token)
     {
         SOC::instance().plugin_update_callbacks.remove(token);
+    }
+
+    static void addSymbol(const QString& symboleName, address64_t address)
+    {
+        SOC::instance().symbols_LUT[symboleName] = address;
+    }
+
+    static void addPeripheral(SOCPeripheral periph)
+    {
+        SOC::instance()._peripherals[periph.name()] = periph;
+    }
+
+    static const QHash<QString, SOCPeripheral>& peripherals()
+    {
+        return SOC::instance()._peripherals;
     }
 };
 #endif //SOC_H

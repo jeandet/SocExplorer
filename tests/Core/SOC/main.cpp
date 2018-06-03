@@ -2,6 +2,7 @@
 #include <QObject>
 #include <QString>
 #include <SOC/SOC.h>
+#include <SOC/socperipheral.h>
 #include <memory>
 #include <stdint.h>
 #include <iostream>
@@ -89,6 +90,21 @@ private slots:
         QVERIFY(callbackCalled==false);
         QVERIFY(foundPlugin==false);
     }
+
+    void can_Add_A_Peripheral()
+    {
+        auto pname = QStringLiteral("Peripheral1");
+        auto rname = QStringLiteral("Register1");
+        auto raddress = address64_t{0x80001000};
+        auto p = SOCPeripheral(pname,{{rname,raddress}});
+        SOC::addPeripheral(std::move(p));
+        QVERIFY(SOC::peripherals().contains(pname));
+        QVERIFY(SOC::peripherals()[pname].name()==pname);
+        QVERIFY(SOC::peripherals()[pname].registers().size()==1);
+        QVERIFY(SOC::peripherals()[pname].registers()[0].name()==rname);
+        QVERIFY(SOC::peripherals()[pname].registers()[0].address()==raddress);
+    }
+
 };
 
 

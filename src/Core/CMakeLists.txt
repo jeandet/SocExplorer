@@ -4,8 +4,11 @@ SET (core_SRCS
     ./pluginloaderV2/pluginmanager.h
     ./memtester/memtester.h
     ./SOC/SOC.h
+    ./SOC/socregister.h
+    ./SOC/socperipheral.h
     ./Logger/Logger.h
     ./SocExplorerCore.h
+    ./bytes_utils.h
     ./address.h
 
     ./memtester/memtester.cpp
@@ -44,6 +47,9 @@ target_include_directories(socexplorercore PUBLIC
 )
 
 target_link_libraries(socexplorercore PUBLIC
-  socexplorercommon
+  #socexplorercommon
+  genericbinaryfiles
+  Qt5::Core
+  Qt5::Widgets
   opaque
 )

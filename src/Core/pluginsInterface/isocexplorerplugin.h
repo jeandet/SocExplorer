@@ -34,7 +34,7 @@
 #include <QObject>
 #include <QVariant>
 #include <QVariantList>
-#include <socexplorer.h>
+#include <bytes_utils.h>
 #include <malloc.h>
 #include <QFile>
 #include <stdint.h>
