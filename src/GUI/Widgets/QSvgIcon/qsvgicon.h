@@ -19,33 +19,20 @@
 /*--                  Author : Alexis Jeandet
 --                     Mail : alexis.jeandet@lpp.polytechnique.fr
 ----------------------------------------------------------------------------*/
-#ifndef DOCKABLEPLUGINMANAGER_H
-#define DOCKABLEPLUGINMANAGER_H
+#ifndef QSVGICON_H
+#define QSVGICON_H
 
-#include <QDockWidget>
-#include "pluginmanagerWDGT.h"
-#include <pluginmangerview.h>
+#include <QIcon>
+#include <QSvgRenderer>
+#include <QImage>
+#include <QPainter>
 
-class dockablePluginManager : public QDockWidget
+class QSvgIcon : public QIcon
 {
-    Q_OBJECT
 public:
-    explicit dockablePluginManager(QWidget *parent = 0);
-
-signals:
-    void loadSysDrviver(const QString name);
-    void loadSysDriverToParent(const QString name, const QString instanceName);
-    void geteplugintree(void);
-    void treeChanged(const QList<socexplorerplugin*>& drivers);
-    void changeSysDriverInstName(const QString newinstanceName,const QString previnstanceName);
-    void closeSysDriver(const QString instanceName);
-    void pluginselected(const QString& instanceName);
-public slots:
-
-private:
-//    pluginmanagerWDGT* managerGui;
-    PluginManagerView* view;
-    
+    QSvgIcon();
+    QSvgIcon(const QString& fileName);
+    void addFile ( const QString & fileName, const QSize & size = QSize(), Mode mode = Normal, State state = Off );
 };
 
-#endif // DOCKABLEPLUGINMANAGER_H
+#endif // QSVGICON_H

@@ -26,62 +26,14 @@
 /*--                  Author : Alexis Jeandet
 --                     Mail : alexis.jeandet@lpp.polytechnique.fr
 ----------------------------------------------------------------------------*/
-#ifndef SOCEXPLORERCORE_H
-#define SOCEXPLORERCORE_H
-#include <isocexplorerplugin.h>
+#ifndef CPP_UTILS_H
+#define CPP_UTILS_H
+
 #include <memory>
-#include <vector>
-#include "pluginloaderV2/pluginmanager.h"
-#include "Logger/Logger.h"
-#include <iostream>
-#include <fstream>
-#include <pluginloaderV2/pluginmanager.h>
 
-class SocExplorerCore
+template <class T>
+auto scope_leaving_guard(T function)
 {
-    Logger _logger;
-    PluginManager<SocExplorerCore> plugin_loader;
-
-    SocExplorerCore()
-        :_logger(&std::cout),plugin_loader({})
-    {
-    }
-    ~SocExplorerCore(){}
-
-    void p_message(const QString& sender, const QString& text, int level)
-    {
-        _logger.message(sender,text,level);
-    }
-
-public:
-    static SocExplorerCore& instance()
-    {
-        static SocExplorerCore inst;
-        return inst;
-    }
-    static void changeLoggerOutput(std::ostream* out)
-    {
-        SocExplorerCore::instance()._logger.changeOutput(out);
-    }
-    static void message(const QString& sender, const QString& text, int level)
-    {
-        SocExplorerCore::instance().p_message(sender,text,level);
-    }
-
-    inline static std::shared_ptr<ISocexplorerPlugin> makeInstance(const QString &pluginName)
-    {
-        return SocExplorerCore::instance().plugin_loader.makeInstance(pluginName);
-    }
-
-    inline static void addPluginLookupPath(const QString& path)
-    {
-        return SocExplorerCore::instance().plugin_loader.addPluginLookupPath(path, true);
-    }
-
-    inline static const PluginManager<SocExplorerCore>& pluginManager()
-    {
-        return SocExplorerCore::instance().plugin_loader;
-    }
-};
-
-#endif //SOCEXPLORERCORE_H
+    return std::shared_ptr<void>( nullptr , std::move( function ) );
+}
+#endif //CPP_UTILS_H

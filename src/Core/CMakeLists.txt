@@ -9,6 +9,7 @@ SET (core_SRCS
     ./Logger/Logger.h
     ./SocExplorerCore.h
     ./bytes_utils.h
+    ./cpp_utils.h
     ./address.h
 
     ./memtester/memtester.cpp

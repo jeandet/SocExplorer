@@ -108,7 +108,8 @@ class PluginManager
             }
         }
     }
-    bool isPlugin(const QString &pluginPath)const
+
+    bool _isPlugin(const QString &pluginPath)const
     {
         if(!this->plugins_metada_cache.contains(pluginPath))
         {
@@ -188,7 +189,7 @@ public:
             {
                 auto path = fileInfo.filePath();
                 logger::message("pluginloader::scanFolders","Checking "+ path,3);
-                if(isPlugin(path))
+                if(_isPlugin(path))
                 {
                     loadPluginMetaData(path);
                     auto name = plugins_metada_cache[path][pluginKeys::Name];
@@ -197,6 +198,18 @@ public:
             }
         }
     }
+
+    bool isPlugin(const QString &pluginName)const
+    {
+        return this->_isPlugin(resolvePluginName(pluginName));
+    }
+
+
+    QStringList getPluginList() const
+    {
+        return this->pluginTable.keys();
+    }
+
 private:
     QHash<QString, QHash<QString,QString>> plugins_metada_cache;
 

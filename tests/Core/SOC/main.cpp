@@ -3,10 +3,10 @@
 #include <QString>
 #include <SOC/SOC.h>
 #include <SOC/socperipheral.h>
+#include <cpp_utils.h>
 #include <memory>
 #include <stdint.h>
 #include <iostream>
-
 
 class A_SOC: public QObject
 {
@@ -16,7 +16,7 @@ public:
         :QObject(parent)
     {
         SocExplorerCore::changeLoggerOutput(&std::cerr);
-        SOC::addPluginLookupPath(PLUGIN_PATH);
+        SocExplorerCore::addPluginLookupPath(PLUGIN_PATH);
     }
 private slots:
 
@@ -66,22 +66,22 @@ private slots:
             callbackCalled = true;
             foundPlugin = tree.contains(pluginInstName);
         };
+        {
+            auto token = SOC::registerPluginUpdateCallback(callback);
+            auto unregister = scope_leaving_guard([token](std::nullptr_t ptr){SOC::unregisterPluginUpdateCallback(token);});
+            // Lodaing a plugin should trigger callback and we should find loaded plugin
+            QVERIFY(SOC::loadPlugin("SimplePlugin", pluginInstName));
+            QVERIFY(SOC::getPlugin( pluginInstName)!=Q_NULLPTR);
+            QVERIFY(callbackCalled==true);
+            QVERIFY(foundPlugin==true);
 
-        auto token = SOC::registerPluginUpdateCallback(callback);
-        // Lodaing a plugin should trigger callback and we should find loaded plugin
-        QVERIFY(SOC::loadPlugin("SimplePlugin", pluginInstName));
-        QVERIFY(SOC::getPlugin( pluginInstName)!=Q_NULLPTR);
-        QVERIFY(callbackCalled==true);
-        QVERIFY(foundPlugin==true);
+            // Unlodaing a plugin should trigger callback and we shouldn't find unloaded plugin
+            SOC::unloadPlugin(pluginInstName);
+            QVERIFY(SOC::getPlugin( pluginInstName)==Q_NULLPTR);
+            QVERIFY(callbackCalled==true);
+            QVERIFY(foundPlugin==false);
 
-        // Unlodaing a plugin should trigger callback and we shouldn't find unloaded plugin
-        SOC::unloadPlugin(pluginInstName);
-        QVERIFY(SOC::getPlugin( pluginInstName)==Q_NULLPTR);
-        QVERIFY(callbackCalled==true);
-        QVERIFY(foundPlugin==false);
-
-
-        SOC::unregisterPluginUpdateCallback(token);
+        }
         // Callback is unregistered so it shouldn't be called
         callbackCalled = false;
         foundPlugin = false;

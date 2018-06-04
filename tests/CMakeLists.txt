@@ -4,3 +4,4 @@ ENDIF(TeamCity)
 
 add_subdirectory(Plugins)
 add_subdirectory(Core)
+add_subdirectory(GUI)

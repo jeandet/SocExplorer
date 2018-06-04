@@ -48,12 +48,12 @@ class SOC
     QHash<int,std::function<void(const QHash<QString,std::shared_ptr<ISocexplorerPlugin>>&)>> plugin_update_callbacks;
 
     QString name;
-    PluginManager<SocExplorerCore> plugin_loader;
+
 
     QHash<QString, SOCPeripheral> _peripherals;
 
     SOC(const QString& name)
-        :name(name),plugin_loader({})
+        :name(name)
     {
 
     }
@@ -97,7 +97,7 @@ class SOC
 
     bool _loadPlugin(const QString& name, const QString& instanceName)
     {
-        auto plugin = plugin_loader.makeInstance(name);
+        auto plugin = SocExplorerCore::makeInstance(name);
         if(plugin!=Q_NULLPTR)
         {
             plugin->setInstanceName(instanceName);
@@ -113,7 +113,7 @@ class SOC
     {
         if(this->plugins.contains(parentInstanceName))
         {
-            auto plugin = plugin_loader.makeInstance(name);
+            auto plugin = SocExplorerCore::makeInstance(name);
             if(plugin!=Q_NULLPTR)
             {
                 plugin->setInstanceName(instanceName);
@@ -165,11 +165,6 @@ public:
     static std::shared_ptr<ISocexplorerPlugin> getPlugin(const QString &instanceName)
     {
         return SOC::instance().plugins.value(instanceName);
-    }
-
-    static void addPluginLookupPath(const QString& path)
-    {
-        return SOC::instance().plugin_loader.addPluginLookupPath(path, true);
     }
 
     static int registerPluginUpdateCallback(std::function<void(const QHash<QString,std::shared_ptr<ISocexplorerPlugin>>&)> callback)

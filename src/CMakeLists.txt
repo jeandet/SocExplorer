@@ -3,6 +3,7 @@ add_subdirectory(genericBinaryFiles)
 add_subdirectory(common)
 add_subdirectory(SocExplorerEngine)
 add_subdirectory(Core)
+add_subdirectory(GUI)
 
 SET (SRCS
     ./mainwindowsmenubar.cpp

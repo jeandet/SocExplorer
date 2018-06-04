@@ -24,7 +24,7 @@
 dockablePluginManager::dockablePluginManager(QWidget *parent) :
     QDockWidget(parent)
 {
-    this->view = new PluginMangerView();
+    this->view = new PluginManagerView();
 //    this->managerGui = new pluginmanagerWDGT;
 //    connect(this->managerGui,SIGNAL(loadSysDrviver(QString)),this,SIGNAL(loadSysDrviver(QString)));
 //    connect(this->managerGui,SIGNAL(loadSysDriverToParent(QString,QString)),this,SIGNAL(loadSysDriverToParent(QString,QString)));

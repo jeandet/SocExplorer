@@ -19,33 +19,31 @@
 /*--                  Author : Alexis Jeandet
 --                     Mail : alexis.jeandet@lpp.polytechnique.fr
 ----------------------------------------------------------------------------*/
-#ifndef DOCKABLEPLUGINMANAGER_H
-#define DOCKABLEPLUGINMANAGER_H
+#ifndef PLUGININFOSWDGT_H
+#define PLUGININFOSWDGT_H
 
-#include <QDockWidget>
-#include "pluginmanagerWDGT.h"
-#include <pluginmangerview.h>
+#include <QWidget>
+#include <QVBoxLayout>
+#include <QTextEdit>
+#include <QString>
+#include <QTextBrowser>
 
-class dockablePluginManager : public QDockWidget
+class pluginInfosWdgt : public QWidget
 {
     Q_OBJECT
 public:
-    explicit dockablePluginManager(QWidget *parent = 0);
+    explicit pluginInfosWdgt(QWidget *parent = 0);
 
-signals:
-    void loadSysDrviver(const QString name);
-    void loadSysDriverToParent(const QString name, const QString instanceName);
-    void geteplugintree(void);
-    void treeChanged(const QList<socexplorerplugin*>& drivers);
-    void changeSysDriverInstName(const QString newinstanceName,const QString previnstanceName);
-    void closeSysDriver(const QString instanceName);
-    void pluginselected(const QString& instanceName);
+
+
 public slots:
+    void updateInfos(const QString pluginPath);
+    void updateInfos(const QStringList& items);
 
 private:
-//    pluginmanagerWDGT* managerGui;
-    PluginManagerView* view;
-    
+    QVBoxLayout* mailLayout;
+    QTextBrowser* textInfos;
+
 };
 
-#endif // DOCKABLEPLUGINMANAGER_H
+#endif // PLUGININFOSWDGT_H

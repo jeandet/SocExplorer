@@ -19,33 +19,57 @@
 /*--                  Author : Alexis Jeandet
 --                     Mail : alexis.jeandet@lpp.polytechnique.fr
 ----------------------------------------------------------------------------*/
-#ifndef DOCKABLEPLUGINMANAGER_H
-#define DOCKABLEPLUGINMANAGER_H
+#ifndef PLUGINLIST_H
+#define PLUGINLIST_H
+#include <QTableWidget>
+#include <QListWidget>
+#include <QtGui/QDragEnterEvent>
+#include <QtGui/QDragLeaveEvent>
+#include <QtGui/QDragMoveEvent>
+#include <QtGui/QDropEvent>
+#include <QtCore/QMimeData>
+#include <QtCore/QUrl>
+#include <QtCore/QList>
+#include <QPoint>
+#include <QStringList>
+#include <QMenu>
+#include <QAction>
+//#include <pluginloader.h>
 
-#include <QDockWidget>
-#include "pluginmanagerWDGT.h"
-#include <pluginmangerview.h>
+class PluginListItem: public QListWidgetItem
+{
+public:
+    explicit PluginListItem( const QString & Name,const QString & fullPath, QListWidget * parent = 0, int type = Type )
+        :QListWidgetItem(Name,parent,type),fullPath(fullPath)
+    {
+    }
+    QString fullPath;
+};
 
-class dockablePluginManager : public QDockWidget
+
+class PluginList: public QListWidget
 {
     Q_OBJECT
 public:
-    explicit dockablePluginManager(QWidget *parent = 0);
+    explicit PluginList(QWidget * parent = Q_NULLPTR);
 
-signals:
-    void loadSysDrviver(const QString name);
-    void loadSysDriverToParent(const QString name, const QString instanceName);
-    void geteplugintree(void);
-    void treeChanged(const QList<socexplorerplugin*>& drivers);
-    void changeSysDriverInstName(const QString newinstanceName,const QString previnstanceName);
-    void closeSysDriver(const QString instanceName);
-    void pluginselected(const QString& instanceName);
+protected:
+    void dragEnterEvent(QDragEnterEvent *event);
+    void dragMoveEvent(QDragMoveEvent *e);
+    void dropEvent(QDropEvent *event);
+    void mousePressEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *e);
+
 public slots:
+    void refreshPluginList();
+private slots:
+    void updateSelection();
+signals:
+    void itemSelectionChanged(const QStringList& items);
+
 
 private:
-//    pluginmanagerWDGT* managerGui;
-    PluginManagerView* view;
-    
+    QPoint dragStartPosition;
 };
 
-#endif // DOCKABLEPLUGINMANAGER_H
+#endif // PLUGINLIST_H
