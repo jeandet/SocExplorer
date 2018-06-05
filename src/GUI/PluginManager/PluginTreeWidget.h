@@ -42,7 +42,7 @@ class PluginTreeWidget : public QTreeWidget
     Q_OBJECT
 public:
     explicit PluginTreeWidget(QWidget *parent = Q_NULLPTR);
-    
+    ~PluginTreeWidget();
 protected:
     void dragEnterEvent(QDragEnterEvent *event);
     void dragMoveEvent(QDragMoveEvent *event);
@@ -60,7 +60,7 @@ signals:
         void changeSysDriverInstName(const QString instanceName);
         void changeSysDriverInstName(const QString newinstanceName,const QString previnstanceName);
 public slots:
-        void treeChanged(const std::vector<std::shared_ptr<ISocexplorerPlugin>> &drivers);
+        void treeChanged(const QHash<QString,std::shared_ptr<ISocexplorerPlugin>>& tree);
         void pluginselectedslt( QTreeWidgetItem * item, int column);
         void itemSelectionChangedslt();
 
@@ -69,6 +69,7 @@ private:
         QTreeWidgetItem* editeditem;
         QString* editeditemprev;
         bool editingItem;
+        int soc_callbak_id;
 };
 
 #endif // PLUGINTREE_H

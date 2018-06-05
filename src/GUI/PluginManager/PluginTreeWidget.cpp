@@ -18,7 +18,17 @@ PluginTreeWidget::PluginTreeWidget(QWidget *parent) :
     connect(this, &PluginTreeWidget::itemChanged, this, &PluginTreeWidget::pluginselectedslt);
     connect(this, &PluginTreeWidget::itemSelectionChanged, this, &PluginTreeWidget::itemSelectionChangedslt);
     this->setHeaderLabels(QStringList()<<"Loaded plugins");
-    emit this->geteplugintree();
+    auto callback = [this](const QHash<QString,std::shared_ptr<ISocexplorerPlugin>>& tree)
+    {
+        this->treeChanged(tree);
+    };
+
+    soc_callbak_id = SOC::registerPluginUpdateCallback(std::move(callback));
+}
+
+PluginTreeWidget::~PluginTreeWidget()
+{
+    SOC::unregisterPluginUpdateCallback(soc_callbak_id);
 }
 
 
@@ -36,10 +46,10 @@ void PluginTreeWidget::itemSelectionChangedslt()
     }
 }
 
-void PluginTreeWidget::treeChanged(const std::vector<std::shared_ptr<ISocexplorerPlugin>> &drivers)
+void PluginTreeWidget::treeChanged(const QHash<QString, std::shared_ptr<ISocexplorerPlugin> > &tree)
 {
     this->clear();
-    for(auto driver:drivers)
+    for(auto driver:tree)
     {
         QTreeWidgetItem* currentItem=new QTreeWidgetItem;
         currentItem->setIcon(0,QSvgIcon(":/images/server.svg"));
@@ -198,7 +208,8 @@ void PluginTreeWidget::dropEvent(QDropEvent *event)
         else if(SocExplorerCore::pluginManager().pluginCanBeRoot(event->mimeData()->text()))
         {
             QString test(event->mimeData()->text());
-            emit this->loadSysDriver(event->mimeData()->text());
+            SOC::loadPlugin(event->mimeData()->text());
+//            emit this->loadSysDriver(event->mimeData()->text());
         }
         if (event->source() == this)
         {

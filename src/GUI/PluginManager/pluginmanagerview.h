@@ -14,15 +14,17 @@ class PluginManagerView : public QWidget
     Q_OBJECT
 
 public:
-    explicit PluginManagerView(QWidget *parent = 0);
+    explicit PluginManagerView(QWidget *parent);
     ~PluginManagerView();
 
+public slots:
+    void refreshPluginList();
 signals:
     void updatepluginInfo(const QString libname);
     void loadSysDrviver(const QString name);
     void loadSysDriverToParent(const QString name, const QString instanceName);
     void geteplugintree(void);
-    void treeChanged(const std::vector<std::shared_ptr<ISocexplorerPlugin>>& drivers);
+    void treeChanged(const QHash<QString,std::shared_ptr<ISocexplorerPlugin>>& tree);
     void changeSysDriverInstName(const QString newinstanceName,const QString previnstanceName);
     void closeSysDriver(const QString instanceName);
     void pluginselected(const QString& instanceName);

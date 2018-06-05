@@ -33,6 +33,7 @@
 #include <QWidget>
 #include <QDrag>
 #include <SocExplorerCore.h>
+#include <SOC/SOC.h>
 
 PluginList::PluginList(QWidget *parent):QListWidget(parent)
 {
@@ -40,6 +41,7 @@ PluginList::PluginList(QWidget *parent):QListWidget(parent)
     this->setDragEnabled(true);
     this->setSelectionMode(QAbstractItemView::ExtendedSelection);
     connect(this,&PluginList::itemSelectionChanged, this, &PluginList::updateSelection);
+    this->refreshPluginList();
 }
 
 
@@ -87,8 +89,8 @@ void PluginList::mouseMoveEvent(QMouseEvent *event)
     QDrag *drag = new QDrag(this);
     QMimeData *mimeData = new QMimeData;
     drag->setHotSpot(event->pos() - rect().topLeft());
-    mimeData->setData("socexplorer/pluginName",QByteArray(((PluginListItem*)this->selectedItems().first())->fullPath.toLatin1()));
-    mimeData->setText(((PluginListItem*)this->selectedItems().first())->fullPath.toLatin1());
+    mimeData->setData("socexplorer/pluginName",QByteArray(((PluginListItem*)this->selectedItems().first())->text().toLatin1()));
+    mimeData->setText(((PluginListItem*)this->selectedItems().first())->text().toLatin1());
     drag->setMimeData(mimeData);
     drag->exec(Qt::MoveAction);
 }
@@ -107,7 +109,7 @@ void PluginList::updateSelection()
     QStringList _items;
     for(int i=0;i<this->selectedItems().count();i++)
     {
-        _items << ((PluginListItem*)(this->selectedItems().at(i)))->fullPath;
+        _items << ((PluginListItem*)(this->selectedItems().at(i)))->text();
     }
     emit this->itemSelectionChanged(_items);
 }

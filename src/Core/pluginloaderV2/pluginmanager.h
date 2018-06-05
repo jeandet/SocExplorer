@@ -40,16 +40,16 @@
 
 namespace pluginKeys
 {
-    const auto Name=QStringLiteral("Name");
-    const auto Author=QStringLiteral("Author");
-    const auto Version=QStringLiteral("Version");
-    const auto Description=QStringLiteral("Description");
-    const auto CanBeRoot=QStringLiteral("root");
-    const auto CanBeChild=QStringLiteral("child");
-    const auto VID=QStringLiteral("VID");
-    const auto PID=QStringLiteral("PID");
+const auto Name=QStringLiteral("Name");
+const auto Author=QStringLiteral("Author");
+const auto Version=QStringLiteral("Version");
+const auto Description=QStringLiteral("Description");
+const auto CanBeRoot=QStringLiteral("root");
+const auto CanBeChild=QStringLiteral("child");
+const auto VID=QStringLiteral("VID");
+const auto PID=QStringLiteral("PID");
 
-    const auto all={Name, Author, Version, Description, CanBeRoot, CanBeChild, VID, PID};
+const auto all={Name, Author, Version, Description, CanBeRoot, CanBeChild, VID, PID};
 };
 
 template<typename T>
@@ -111,7 +111,11 @@ class PluginManager
 
     bool _isPlugin(const QString &pluginPath)const
     {
-        if(!this->plugins_metada_cache.contains(pluginPath))
+        if(this->plugins_metada_cache.contains(pluginPath))
+        {
+            return true;
+        }
+        else
         {
             if (QLibrary::isLibrary(pluginPath))
             {

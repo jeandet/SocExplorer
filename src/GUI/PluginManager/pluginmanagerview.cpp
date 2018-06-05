@@ -19,3 +19,8 @@ PluginManagerView::~PluginManagerView()
 {
     delete ui;
 }
+
+void PluginManagerView::refreshPluginList()
+{
+    this->ui->pluginList->refreshPluginList();
+}
