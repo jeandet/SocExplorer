@@ -36,4 +36,17 @@ auto scope_leaving_guard(T function)
 {
     return std::shared_ptr<void>( nullptr , std::move( function ) );
 }
+
+
+template< class... >
+using void_t = void;
+
+#define HAS_METHOD(method)\
+template <class T, class=void>\
+struct has_##method : std::false_type{};\
+\
+template <class T>\
+struct has_##method<T, void_t<decltype(std::declval<T>().method())>>\
+       : std::true_type{};\
+
 #endif //CPP_UTILS_H

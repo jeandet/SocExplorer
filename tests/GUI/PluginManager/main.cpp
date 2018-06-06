@@ -7,23 +7,16 @@
 
 #include <iostream>
 
-#include <pluginmanagerview.h>
-#include <PluginTreeWidget.h>
 #include <plugininfowidget.h>
+#include <PluginTreeWidget.h>
+#include <pluginmanagerview.h>
 #include <pluginlist.h>
 #include <SocExplorerCore.h>
 #include <SOC/SOC.h>
 #include <unistd.h>
+#include <cpp_utils.h>
 
-template< class... >
-using void_t = void;
-
-template <class T, class=void>
-struct has_viewport : std::false_type{};
-
-template <class T>
-struct has_viewport<T, void_t<decltype(std::declval<T>().viewport())>>
-       : std::true_type{};
+HAS_METHOD(viewport)
 
 template<typename T>
 void mouseMove(T* widget, QPoint pos, Qt::MouseButton mouseModifier)
@@ -36,6 +29,44 @@ void mouseMove(T* widget, QPoint pos, Qt::MouseButton mouseModifier)
         qApp->sendEvent(widget, &event);
     qApp->processEvents();
 }
+
+template <typename T>
+void setMouseTracking(T* widget)
+{
+    if constexpr(has_viewport<T>::value)
+    {
+        widget->viewport()->setMouseTracking(true);
+    }
+    else
+    {
+        widget->setMouseTracking(true);
+    }
+}
+
+#define SELECT_ITEM(widget, itemIndex, item)\
+    auto item = widget->item(itemIndex);\
+    {\
+        auto itemCenterPos = widget->visualItemRect(item).center();\
+        QTest::mouseClick(widget->viewport(), Qt::LeftButton, Qt::NoModifier, itemCenterPos);\
+        QVERIFY(widget->selectedItems().size() > 0);\
+        QVERIFY(widget->selectedItems().contains(item));\
+    }
+
+
+#define GET_CHILD_WIDGET_FOR_GUI_TESTS(parent, child, childType, childName)\
+    childType* child = parent.findChild<childType*>(childName); \
+    QVERIFY(child!=Q_NULLPTR); \
+    setMouseTracking(child);
+
+
+
+#define PREPARE_GUI_TEST(main_widget)\
+    main_widget.setGeometry(QRect(QPoint(QApplication::desktop()->geometry().center() - QPoint(250, 250)),\
+                                QSize(500, 500)));\
+    main_widget.show();\
+    qApp->setActiveWindow(&main_widget);\
+    QVERIFY(QTest::qWaitForWindowActive(&main_widget))
+
 
 
 class A_PluginManagerGUI: public QObject
@@ -62,26 +93,17 @@ private slots:
 
     void loads_A_Plugin_On_Drag_n_Drop()
     {
-        QMainWindow mw;
-        PluginManagerView* pluginManager=new PluginManagerView(Q_NULLPTR);
-        auto loadedPluginsTree = pluginManager->findChild<PluginTreeWidget*>("loadedPluginsTree");
-        auto pluginList = pluginManager->findChild<PluginList*>("pluginList");
-        auto pluginInfo = pluginManager->findChild<PluginInfoWidget*>("pluginInfo");
-        QVERIFY(loadedPluginsTree!=Q_NULLPTR);
-        QVERIFY(pluginList!=Q_NULLPTR);
-        QVERIFY(pluginInfo!=Q_NULLPTR);
-        mw.setCentralWidget(pluginManager);
-        mw.setGeometry(QRect(QPoint(QApplication::desktop()->geometry().center() - QPoint(250, 250)),
-                                    QSize(500, 500)));
-        mw.show();
-        pluginList->viewport()->setMouseTracking(true);
-        loadedPluginsTree->viewport()->setMouseTracking(true);
-        qApp->setActiveWindow(&mw);
-        QVERIFY(QTest::qWaitForWindowActive(&mw));
-        auto item = pluginList->item(0);
+        PluginManagerView pluginManager{Q_NULLPTR};
+
+        GET_CHILD_WIDGET_FOR_GUI_TESTS(pluginManager, loadedPluginsTree, PluginTreeWidget, "loadedPluginsTree");
+        GET_CHILD_WIDGET_FOR_GUI_TESTS(pluginManager, pluginList, PluginList, "pluginList");
+        GET_CHILD_WIDGET_FOR_GUI_TESTS(pluginManager, pluginInfo, PluginInfoWidget, "pluginInfo");
+
+        PREPARE_GUI_TEST(pluginManager);
+
+        SELECT_ITEM(pluginList,0,item);
+
         auto itemCenterPos = pluginList->visualItemRect(item).center();
-        QTest::mouseClick(pluginList->viewport(), Qt::LeftButton, Qt::NoModifier, itemCenterPos);
-        QVERIFY(pluginList->selectedItems()[0]==item);
         QTest::mousePress(pluginList->viewport(), Qt::LeftButton, Qt::NoModifier, itemCenterPos);
         mouseMove(pluginList,itemCenterPos,Qt::LeftButton);
         itemCenterPos+=QPoint(0,-10);
@@ -93,8 +115,36 @@ private slots:
         mouseMove(pluginList,itemCenterPos,Qt::LeftButton);
         QTest::mouseClick(loadedPluginsTree->viewport(), Qt::LeftButton, Qt::NoModifier, loadedPluginsTree->rect().center());
         QVERIFY(loadedPluginsTree->topLevelItem(0) != Q_NULLPTR);
+
     }
 
+    void loads_A_Child_Plugin_On_Drag_n_Drop()
+    {
+        PluginManagerView pluginManager{Q_NULLPTR};
+
+        GET_CHILD_WIDGET_FOR_GUI_TESTS(pluginManager, loadedPluginsTree, PluginTreeWidget, "loadedPluginsTree");
+        GET_CHILD_WIDGET_FOR_GUI_TESTS(pluginManager, pluginList, PluginList, "pluginList");
+        GET_CHILD_WIDGET_FOR_GUI_TESTS(pluginManager, pluginInfo, PluginInfoWidget, "pluginInfo");
+
+        PREPARE_GUI_TEST(pluginManager);
+
+        SELECT_ITEM(pluginList,0,item);
+
+        auto itemCenterPos = pluginList->visualItemRect(item).center();
+        QTest::mousePress(pluginList->viewport(), Qt::LeftButton, Qt::NoModifier, itemCenterPos);
+        mouseMove(pluginList,itemCenterPos,Qt::LeftButton);
+        itemCenterPos+=QPoint(0,-10);
+        QTimer::singleShot(100,[loadedPluginsTree](){
+            mouseMove(loadedPluginsTree,loadedPluginsTree->rect().center(),Qt::LeftButton);
+            mouseMove(loadedPluginsTree,loadedPluginsTree->rect().center()+QPoint(0,-10),Qt::LeftButton);
+            QTest::mouseRelease(loadedPluginsTree->viewport(), Qt::LeftButton);
+        });
+        mouseMove(pluginList,itemCenterPos,Qt::LeftButton);
+        QTest::mouseClick(loadedPluginsTree->viewport(), Qt::LeftButton, Qt::NoModifier, loadedPluginsTree->rect().center());
+        QVERIFY(loadedPluginsTree->topLevelItem(0) != Q_NULLPTR);
+
+        //TBC ... :)
+    }
 
 
 };

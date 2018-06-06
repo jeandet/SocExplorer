@@ -12,7 +12,7 @@ class PluginInfoWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit PluginInfoWidget(QWidget *parent = 0);
+    explicit PluginInfoWidget(QWidget *parent = Q_NULLPTR);
     ~PluginInfoWidget();
 
 private:
