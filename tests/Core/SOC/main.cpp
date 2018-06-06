@@ -22,6 +22,7 @@ private slots:
 
     void can_Load_A_Plugin()
     {
+        SOC::unloadAllPlugins();
         QVERIFY(SOC::loadPlugin("SimplePlugin","SimplePlugin0"));
         auto plugin = SOC::getPlugin("SimplePlugin0");
         QVERIFY(plugin!=Q_NULLPTR);
@@ -29,6 +30,7 @@ private slots:
 
     void can_Unload_A_Plugin()
     {
+        SOC::unloadAllPlugins();
         QVERIFY(SOC::loadPlugin("SimplePlugin","SimplePluginToUnload"));
         auto plugin = SOC::getPlugin("SimplePluginToUnload");
         QVERIFY(plugin!=Q_NULLPTR);
@@ -39,14 +41,29 @@ private slots:
 
     }
 
+    void can_Unload_All_Plugins_At_Once()
+    {
+        SOC::unloadAllPlugins();
+        for(const auto _:std::array<char,10>() )
+        {
+            int count =SOC::plugins().count();
+            QVERIFY(SOC::loadPlugin("SimplePlugin"));
+            QVERIFY(count < SOC::plugins().count());
+        }
+        SOC::unloadAllPlugins();
+        QVERIFY(0 == SOC::plugins().count());
+    }
+
     void can_Load_A_Plugin_With_Agiven_Instance_Name()
     {
+        SOC::unloadAllPlugins();
         QVERIFY(SOC::loadPlugin("SimplePlugin", "MyTestPlugin"));
         QVERIFY(SOC::getPlugin( "MyTestPlugin")!=Q_NULLPTR);
     }
 
     void can_Instanciate_A_Plugin_As_Child()
     {
+        SOC::unloadAllPlugins();
         QVERIFY(SOC::loadPlugin("SimplePlugin", "Parent"));
         QVERIFY(SOC::loadChildPlugin("SimplePlugin", "Parent","Child"));
         auto child = SOC::getPlugin("Child");
@@ -58,6 +75,7 @@ private slots:
 
     void calls_A_Callback_On_Plugin_Instanciation()
     {
+        SOC::unloadAllPlugins();
         bool callbackCalled=false;
         bool foundPlugin;
         const QString pluginInstName{"MyTestPlugin1"};
@@ -80,8 +98,8 @@ private slots:
             QVERIFY(SOC::getPlugin( pluginInstName)==Q_NULLPTR);
             QVERIFY(callbackCalled==true);
             QVERIFY(foundPlugin==false);
-
         }
+        SOC::unloadAllPlugins();
         // Callback is unregistered so it shouldn't be called
         callbackCalled = false;
         foundPlugin = false;

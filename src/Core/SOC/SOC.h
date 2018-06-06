@@ -40,20 +40,20 @@
 
 class SOC
 {
-    QHash<QString,address64_t> symbols_LUT;
+    QHash<QString,address64_t> _symbols_LUT;
 
-    QHash<QString,std::shared_ptr<ISocexplorerPlugin>> plugins;
-    QHash<QString,std::shared_ptr<ISocexplorerPlugin>> root_plugins;
+    QHash<QString,std::shared_ptr<ISocexplorerPlugin>> _plugins;
+    QHash<QString,std::shared_ptr<ISocexplorerPlugin>> _root_plugins;
 
     QHash<int,std::function<void(const QHash<QString,std::shared_ptr<ISocexplorerPlugin>>&)>> plugin_update_callbacks;
 
-    QString name;
+    QString _name;
 
 
     QHash<QString, SOCPeripheral> _peripherals;
 
     SOC(const QString& name)
-        :name(name)
+        :_name(name)
     {
 
     }
@@ -61,16 +61,16 @@ class SOC
     QString _makeInstanceName(const QString& baseName)const
     {
         int i=0;
-        while(this->plugins.keys().contains(baseName+QString::number(i)))
+        while(this->_plugins.keys().contains(baseName+QString::number(i)))
             i+=1;
         return baseName+QString::number(i);
     }
 
-    void notifyPluginChange()
+    void _notifyPluginChange()
     {
         for(const auto& callback:plugin_update_callbacks)
         {
-            callback(this->root_plugins);
+            callback(this->_root_plugins);
         }
     }
 
@@ -80,18 +80,18 @@ class SOC
         {
             _unloadPlugin(child);
         }
-        this->root_plugins.remove(plugin->instanceName());
-        this->plugins.remove(plugin->instanceName());
+        this->_root_plugins.remove(plugin->instanceName());
+        this->_plugins.remove(plugin->instanceName());
         return true;
     }
 
     bool _unloadPlugin(const QString& instanceName)
     {
-        auto plugin = this->plugins[instanceName];
+        auto plugin = this->_plugins[instanceName];
         if(plugin==Q_NULLPTR)
             return false;
         auto success = _unloadPlugin(plugin);
-        notifyPluginChange();
+        _notifyPluginChange();
         return success;
     }
 
@@ -101,9 +101,9 @@ class SOC
         if(plugin!=Q_NULLPTR)
         {
             plugin->setInstanceName(instanceName);
-            this->root_plugins[instanceName] = plugin;
-            this->plugins[instanceName] = plugin;
-            notifyPluginChange();
+            this->_root_plugins[instanceName] = plugin;
+            this->_plugins[instanceName] = plugin;
+            _notifyPluginChange();
             return true;
         }
         return false;
@@ -111,16 +111,16 @@ class SOC
 
     bool _loadChildPlugin(const QString& name, const QString& parentInstanceName, const QString& instanceName)
     {
-        if(this->plugins.contains(parentInstanceName))
+        if(this->_plugins.contains(parentInstanceName))
         {
             auto plugin = SocExplorerCore::makeInstance(name);
             if(plugin!=Q_NULLPTR)
             {
                 plugin->setInstanceName(instanceName);
-                auto parent = this->plugins[parentInstanceName];
+                auto parent = this->_plugins[parentInstanceName];
                 parent->appendChildPlugin(plugin);
-                this->plugins[instanceName] = plugin;
-                notifyPluginChange();
+                this->_plugins[instanceName] = plugin;
+                _notifyPluginChange();
                 return true;
             }
         }
@@ -162,9 +162,21 @@ public:
         return  SOC::instance()._unloadPlugin(instanceName);
     }
 
+    static void unloadAllPlugins()
+    {
+        SOC::instance()._root_plugins.clear();
+        SOC::instance()._plugins.clear();
+        SOC::instance()._notifyPluginChange();
+    }
+
     static std::shared_ptr<ISocexplorerPlugin> getPlugin(const QString &instanceName)
     {
-        return SOC::instance().plugins.value(instanceName);
+        return SOC::instance()._plugins.value(instanceName);
+    }
+
+    static const QHash<QString,std::shared_ptr<ISocexplorerPlugin>>& plugins()
+    {
+        return SOC::instance()._plugins;
     }
 
     static int registerPluginUpdateCallback(std::function<void(const QHash<QString,std::shared_ptr<ISocexplorerPlugin>>&)> callback)
@@ -182,7 +194,7 @@ public:
 
     static void addSymbol(const QString& symboleName, address64_t address)
     {
-        SOC::instance().symbols_LUT[symboleName] = address;
+        SOC::instance()._symbols_LUT[symboleName] = address;
     }
 
     static void addPeripheral(SOCPeripheral periph)
