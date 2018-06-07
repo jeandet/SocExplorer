@@ -23,7 +23,7 @@ void mouseMove(T* widget, QPoint pos, Qt::MouseButton mouseModifier)
 {
     QCursor::setPos(widget->mapToGlobal(pos));
     QMouseEvent event(QEvent::MouseMove, pos, Qt::NoButton, mouseModifier, Qt::NoModifier);
-    if constexpr(has_viewport<T>::value)
+    if constexpr(has_viewport<T>)
             qApp->sendEvent(widget->viewport(), &event);
     else
     qApp->sendEvent(widget, &event);
@@ -33,7 +33,7 @@ void mouseMove(T* widget, QPoint pos, Qt::MouseButton mouseModifier)
 template <typename T>
 void setMouseTracking(T* widget)
 {
-    if constexpr(has_viewport<T>::value)
+    if constexpr(has_viewport<T>)
     {
         widget->viewport()->setMouseTracking(true);
     }
@@ -62,7 +62,7 @@ template<typename T1, typename T2, typename T3, typename T4=void>
 void dragnDropItem(T1* sourceWidget, T2* destWidget, T3* item, T4* destItem=Q_NULLPTR)
 {
     auto itemCenterPos = sourceWidget->visualItemRect(item).center();
-    if constexpr(has_viewport<T1>::value)
+    if constexpr(has_viewport<T1>)
     {
         QTest::mousePress(sourceWidget->viewport(), Qt::LeftButton, Qt::NoModifier, itemCenterPos);
     }
@@ -75,12 +75,12 @@ void dragnDropItem(T1* sourceWidget, T2* destWidget, T3* item, T4* destItem=Q_NU
     QTimer::singleShot(100,[destWidget,destItem](){
         mouseMove(destWidget, destWidget->rect().center(),Qt::LeftButton);
         mouseMove(destWidget, destWidget->rect().center()+QPoint(0,-10),Qt::LeftButton);
-        if constexpr(!std::is_same<void, T4>::value)
+        if constexpr(!std::is_same_v<void, T4>)
         {
             auto destItemCenterPos = destWidget->visualItemRect(destItem).center();
             QTest::mouseRelease(destWidget, Qt::LeftButton, Qt::NoModifier, destItemCenterPos);
         }
-        else if constexpr(has_viewport<T2>::value)
+        else if constexpr(has_viewport<T2>)
         {
             QTest::mouseRelease(destWidget->viewport(), Qt::LeftButton);
         }
