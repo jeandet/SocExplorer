@@ -18,6 +18,8 @@
 
 HAS_METHOD(viewport)
 
+HAS_METHOD(topLevelItem)
+
 template<typename T>
 void mouseMove(T* widget, QPoint pos, Qt::MouseButton mouseModifier)
 {
@@ -43,13 +45,26 @@ void setMouseTracking(T* widget)
     }
 }
 
+template <typename T, typename T2>
+auto getItem(T* widget, T2 itemIndex)
+{
+    if constexpr(has_topLevelItem<T>)
+    {
+        return  widget->topLevelItem(itemIndex);
+    }
+    else
+    {
+        return  widget->item(itemIndex);
+    }
+}
+
 #define SELECT_ITEM(widget, itemIndex, item)\
-    auto item = widget->item(itemIndex);\
-{\
-    auto itemCenterPos = widget->visualItemRect(item).center();\
-    QTest::mouseClick(widget->viewport(), Qt::LeftButton, Qt::NoModifier, itemCenterPos);\
-    QVERIFY(widget->selectedItems().size() > 0);\
-    QVERIFY(widget->selectedItems().contains(item));\
+    auto item = getItem(widget, itemIndex);\
+    {\
+        auto itemCenterPos = widget->visualItemRect(item).center();\
+        QTest::mouseClick(widget->viewport(), Qt::LeftButton, Qt::NoModifier, itemCenterPos);\
+        QVERIFY(widget->selectedItems().size() > 0);\
+        QVERIFY(widget->selectedItems().contains(item));\
     }
 
 
@@ -168,6 +183,35 @@ private slots:
         dragnDropItem(pluginList, loadedPluginsTree, item, rootPluginItem);
 
         QVERIFY(SOC::plugins().count()==2);
+
+    }
+
+    void unloads_A_Child_Plugin_Del_Key_Press()
+    {
+        SOC::unloadAllPlugins();
+
+        PluginManagerView pluginManager{Q_NULLPTR};
+
+        GET_CHILD_WIDGET_FOR_GUI_TESTS(pluginManager, loadedPluginsTree, PluginTreeWidget, "loadedPluginsTree");
+        GET_CHILD_WIDGET_FOR_GUI_TESTS(pluginManager, pluginList, PluginList, "pluginList");
+        GET_CHILD_WIDGET_FOR_GUI_TESTS(pluginManager, pluginInfo, PluginInfoWidget, "pluginInfo");
+
+        PREPARE_GUI_TEST(pluginManager);
+
+        SELECT_ITEM(pluginList,0,item);
+
+        dragnDropItem(pluginList, loadedPluginsTree, item);
+
+        QTest::mouseClick(loadedPluginsTree->viewport(), Qt::LeftButton, Qt::NoModifier, loadedPluginsTree->rect().center());
+
+
+        SELECT_ITEM(loadedPluginsTree,0,rootPluginItem);
+
+        QVERIFY(rootPluginItem!=Q_NULLPTR);
+
+        QTest::keyPress(loadedPluginsTree,Qt::Key::Key_Delete);
+
+        QVERIFY(SOC::plugins().count()==0);
 
     }
 

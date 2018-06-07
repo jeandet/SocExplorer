@@ -185,7 +185,7 @@ void PluginTreeWidget::keyPressEvent(QKeyEvent *event)
         case Qt::Key_Delete:
             if(this->selectedItems().count()==1)
             {
-                emit this->closeSysDriver(this->selectedItems().first()->text(0));
+                SOC::unloadPlugin(this->selectedItems().first()->text(0));
             }
             break;
         default:
