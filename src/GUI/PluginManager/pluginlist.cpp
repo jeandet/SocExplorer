@@ -40,7 +40,7 @@ PluginList::PluginList(QWidget *parent):QListWidget(parent)
     this->setAcceptDrops(true);
     this->setDragEnabled(true);
     this->setSelectionMode(QAbstractItemView::ExtendedSelection);
-    connect(this,&PluginList::itemSelectionChanged, this, &PluginList::updateSelection);
+    //connect(this,&PluginList::itemSelectionChanged, this, &PluginList::updateSelection);
     this->refreshPluginList();
 }
 
@@ -89,8 +89,9 @@ void PluginList::mouseMoveEvent(QMouseEvent *event)
     QDrag *drag = new QDrag(this);
     QMimeData *mimeData = new QMimeData;
     drag->setHotSpot(event->pos() - rect().topLeft());
-    mimeData->setData("socexplorer/pluginName",QByteArray(((PluginListItem*)this->selectedItems().first())->text().toLatin1()));
-    mimeData->setText(((PluginListItem*)this->selectedItems().first())->text().toLatin1());
+    auto item = static_cast<PluginListItem*>(this->selectedItems().first());
+    mimeData->setData("socexplorer/pluginName",QByteArray(item->text().toLatin1()));
+    mimeData->setText(item->text().toLatin1());
     drag->setMimeData(mimeData);
     drag->exec(Qt::MoveAction);
 }
@@ -103,13 +104,7 @@ void PluginList::dropEvent(QDropEvent *event)
 }
 
 
-
-void PluginList::updateSelection()
+PluginListItem::PluginListItem(const QString &Name, const QString &fullPath, QListWidget *parent, int type)
+    :QListWidgetItem(Name,parent,type),fullPath(fullPath)
 {
-    QStringList _items;
-    for(int i=0;i<this->selectedItems().count();i++)
-    {
-        _items << ((PluginListItem*)(this->selectedItems().at(i)))->text();
-    }
-    emit this->itemSelectionChanged(_items);
 }

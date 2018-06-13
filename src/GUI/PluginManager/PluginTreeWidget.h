@@ -24,7 +24,6 @@
 
 #include <QWidget>
 #include <QTreeWidget>
-//#include <socexplorerplugin.h>
 #include <isocexplorerplugin.h>
 #include <QList>
 #include <QtGui/QDragEnterEvent>
@@ -59,8 +58,10 @@ signals:
         void closeSysDriver(const QString instanceName);
         void changeSysDriverInstName(const QString instanceName);
         void changeSysDriverInstName(const QString newinstanceName,const QString previnstanceName);
-public slots:
+
+public  slots:
         void treeChanged(const QHash<QString,std::shared_ptr<ISocexplorerPlugin>>& tree);
+private slots:
         void pluginselectedslt( QTreeWidgetItem * item, int column);
         void itemSelectionChangedslt();
 

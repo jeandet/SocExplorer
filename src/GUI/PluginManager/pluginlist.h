@@ -39,10 +39,7 @@
 class PluginListItem: public QListWidgetItem
 {
 public:
-    explicit PluginListItem( const QString & Name,const QString & fullPath, QListWidget * parent = 0, int type = Type )
-        :QListWidgetItem(Name,parent,type),fullPath(fullPath)
-    {
-    }
+    explicit PluginListItem( const QString & Name,const QString & fullPath, QListWidget * parent = Q_NULLPTR, int type = Type );
     QString fullPath;
 };
 
@@ -62,11 +59,6 @@ protected:
 
 public slots:
     void refreshPluginList();
-private slots:
-    void updateSelection();
-signals:
-    void itemSelectionChanged(const QStringList& items);
-
 
 private:
     QPoint dragStartPosition;

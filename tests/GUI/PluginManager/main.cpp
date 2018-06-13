@@ -131,11 +131,22 @@ private slots:
     void lists_Available_Plugins()
     {
         PluginManagerView pluginManager{Q_NULLPTR};
-        auto loadedPluginsTree = pluginManager.findChild<PluginTreeWidget*>("loadedPluginsTree");
-        auto pluginList = pluginManager.findChild<PluginList*>("pluginList");
-        auto pluginInfo = pluginManager.findChild<PluginInfoWidget*>("pluginInfo");
+        GET_CHILD_WIDGET_FOR_GUI_TESTS(pluginManager, pluginList, PluginList, "pluginList");
         QVERIFY(pluginList->count() >= 0);
         QVERIFY(pluginList->item(0)->text() == QStringLiteral("SimplePlugin"));
+    }
+
+    void shows_plugin_description()
+    {
+        PluginManagerView pluginManager{Q_NULLPTR};
+        GET_CHILD_WIDGET_FOR_GUI_TESTS(pluginManager, pluginList, PluginList, "pluginList");
+        GET_CHILD_WIDGET_FOR_GUI_TESTS(pluginManager, pluginInfo, PluginInfoWidget, "pluginInfo");
+        QVERIFY(pluginList->count() >= 0);
+        SELECT_ITEM(pluginList,0,item);
+        GET_CHILD_WIDGET_FOR_GUI_TESTS((*pluginInfo), pluginName, QLabel, "PluginName");
+        QVERIFY(pluginName->text().compare("SimplePlugin"));
+        GET_CHILD_WIDGET_FOR_GUI_TESTS((*pluginInfo), pluginAuthor, QLabel, "PluginAuthor");
+        QVERIFY(pluginAuthor->text().compare("Alexis Jeandet"));
     }
 
     void loads_A_Plugin_On_Drag_n_Drop()
